@@ -17,5 +17,41 @@
   },
   "footer": {
     "rights": "All rights reserved."
+  },
+  "recipe": {
+    "servings": "Servings",
+    "servingsUnit": "servings",
+    "decreaseServings": "Decrease servings",
+    "increaseServings": "Increase servings",
+    "prepTime": "Prep",
+    "cookTime": "Cook",
+    "restTime": "Rest",
+    "minutesAbbr": "min",
+    "difficulty": {
+      "EASY": "Easy",
+      "MEDIUM": "Medium",
+      "HARD": "Hard",
+      "EXPERT": "Expert"
+    },
+    "ingredientsTitle": "Ingredients",
+    "stepsTitle": "Method",
+    "step": "Step {number}",
+    "historyTitle": "History",
+    "sourcesTitle": "Sources",
+    "optional": "optional",
+    "units": {
+      "G": "g",
+      "KG": "kg",
+      "ML": "ml",
+      "L": "l",
+      "TSP": "tsp",
+      "TBSP": "tbsp",
+      "CUP": "cup",
+      "PIECE": "pc",
+      "PINCH": "pinch",
+      "SLICE": "slice",
+      "BUNCH": "bunch"
+    },
+    "heroImagePlaceholder": "Image coming soon"
   }
 }

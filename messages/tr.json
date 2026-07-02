@@ -17,5 +17,41 @@
   },
   "footer": {
     "rights": "Tüm hakları saklıdır."
+  },
+  "recipe": {
+    "servings": "Porsiyon",
+    "servingsUnit": "kişilik",
+    "decreaseServings": "Porsiyonu azalt",
+    "increaseServings": "Porsiyonu artır",
+    "prepTime": "Hazırlık",
+    "cookTime": "Pişirme",
+    "restTime": "Dinlenme",
+    "minutesAbbr": "dk",
+    "difficulty": {
+      "EASY": "Kolay",
+      "MEDIUM": "Orta",
+      "HARD": "Zor",
+      "EXPERT": "Uzman"
+    },
+    "ingredientsTitle": "Malzemeler",
+    "stepsTitle": "Yapılışı",
+    "step": "Adım {number}",
+    "historyTitle": "Tarihçe",
+    "sourcesTitle": "Kaynakça",
+    "optional": "isteğe bağlı",
+    "units": {
+      "G": "g",
+      "KG": "kg",
+      "ML": "ml",
+      "L": "l",
+      "TSP": "çay kaşığı",
+      "TBSP": "yemek kaşığı",
+      "CUP": "su bardağı",
+      "PIECE": "adet",
+      "PINCH": "tutam",
+      "SLICE": "dilim",
+      "BUNCH": "demet"
+    },
+    "heroImagePlaceholder": "Görsel yakında eklenecek"
   }
 }

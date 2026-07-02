@@ -8,3 +8,5 @@ coverage/
 .env.production
 .vercel
 .claude/settings.local.json
+.env*
+supabase/.temp

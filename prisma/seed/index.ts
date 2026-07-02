@@ -1,5 +1,7 @@
-import { PrismaClient, type AlternativeType } from "@prisma/client";
+import { PrismaClient, type AlternativeType, type Difficulty, type SourceType, type Unit } from "@prisma/client";
 import { ottomanSeed as s } from "./data/ottoman";
+import { authorsSeed } from "./data/authors";
+import { recipesSeed } from "./data/recipes";
 
 const db = new PrismaClient();
 
@@ -24,7 +26,7 @@ async function main() {
     },
   });
 
-  await db.city.upsert({
+  const city = await db.city.upsert({
     where: { slug: s.city.slug },
     update: {},
     create: {
@@ -57,7 +59,7 @@ async function main() {
     },
   });
 
-  await db.era.upsert({
+  const era = await db.era.upsert({
     where: { slug: s.era.slug },
     update: {},
     create: {
@@ -74,7 +76,7 @@ async function main() {
     },
   });
 
-  await db.cuisine.upsert({
+  const cuisine = await db.cuisine.upsert({
     where: { slug: s.cuisine.slug },
     update: {},
     create: {
@@ -88,8 +90,9 @@ async function main() {
     },
   });
 
+  const categoryIds = new Map<string, string>();
   for (const c of s.categories) {
-    await db.category.upsert({
+    const row = await db.category.upsert({
       where: { slug: c.slug },
       update: {},
       create: {
@@ -102,6 +105,7 @@ async function main() {
         },
       },
     });
+    categoryIds.set(c.slug, row.id);
   }
 
   const ingredientIds = new Map<string, string>();
@@ -143,6 +147,91 @@ async function main() {
         ratio: alt.ratio,
         isVerified: true,
       },
+    });
+  }
+
+  const authorIds = new Map<string, string>();
+  for (const a of authorsSeed) {
+    const row = await db.author.upsert({
+      where: { slug: a.slug },
+      update: {},
+      create: { slug: a.slug, name: a.name, bio: a.bio },
+    });
+    authorIds.set(a.slug, row.id);
+  }
+
+  for (const r of recipesSeed) {
+    const recipe = await db.recipe.upsert({
+      where: { slug: r.slug },
+      update: {},
+      create: {
+        slug: r.slug,
+        status: "PUBLISHED",
+        cuisineId: cuisine.id,
+        countryId: country.id,
+        cityId: city.id,
+        eraId: era.id,
+        civilizationId: civilization.id,
+        categoryId: categoryIds.get(r.categorySlug)!,
+        authorId: authorIds.get(r.authorSlug)!,
+        prepMinutes: r.prepMinutes,
+        cookMinutes: r.cookMinutes,
+        restMinutes: r.restMinutes,
+        servings: r.servings,
+        difficulty: r.difficulty as Difficulty,
+        publishedAt: new Date(r.publishedAt),
+        translations: {
+          create: [
+            { locale: "tr", ...r.tr },
+            { locale: "en", ...r.en },
+          ],
+        },
+        steps: {
+          create: r.steps.map((step) => ({
+            sortOrder: step.sortOrder,
+            durationMinutes: step.durationMinutes,
+            translations: {
+              create: [
+                { locale: "tr", ...step.tr },
+                { locale: "en", ...step.en },
+              ],
+            },
+          })),
+        },
+        ingredients: {
+          create: r.ingredients.map((i) => ({
+            ingredientId: ingredientIds.get(i.ingredientSlug)!,
+            quantity: i.quantity,
+            unit: i.unit as Unit,
+            note: i.note,
+            groupLabel: i.groupLabel,
+            isOptional: i.isOptional,
+            sortOrder: i.sortOrder,
+          })),
+        },
+        nutrition: { create: r.nutrition },
+      },
+    });
+
+    let source = await db.historicalSource.findFirst({
+      where: { title: r.source.title, author: r.source.author },
+    });
+    if (!source) {
+      source = await db.historicalSource.create({
+        data: {
+          type: r.source.type as SourceType,
+          title: r.source.title,
+          author: r.source.author,
+          year: r.source.year,
+          reliability: r.source.reliability,
+          notes: r.source.notes,
+        },
+      });
+    }
+    await db.recipeSource.upsert({
+      where: { recipeId_sourceId: { recipeId: recipe.id, sourceId: source.id } },
+      update: {},
+      create: { recipeId: recipe.id, sourceId: source.id, citation: r.source.citation },
     });
   }
 
