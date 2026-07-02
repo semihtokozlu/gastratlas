@@ -1,0 +1,799 @@
+// ============================================================
+// GastrAtlas — PostgreSQL Şeması (Prisma)
+// İlkeler: ülke-bağımsızlık, *Translation ayrıştırması,
+// aralıklı zaman modeli (negatif yıl = M.Ö.), AI izlenebilirliği.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------- ENUMS -----------------------------
+
+enum Role {
+  VISITOR
+  USER
+  EDITOR
+  HISTORIAN
+  ADMIN
+}
+
+enum ContentStatus {
+  DRAFT
+  AI_REVIEW
+  EDITOR_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+enum Unit {
+  G
+  KG
+  ML
+  L
+  TSP
+  TBSP
+  CUP
+  PIECE
+  PINCH
+  SLICE
+  BUNCH
+}
+
+enum AlternativeType {
+  HISTORICAL
+  MODERN
+  VEGAN
+  VEGETARIAN
+  GLUTEN_FREE
+  LACTOSE_FREE
+  ECONOMIC
+  LOCAL
+  SAME_AROMA
+  SAME_TEXTURE
+}
+
+enum SourceType {
+  MANUSCRIPT
+  BOOK
+  ACADEMIC_PAPER
+  ARCHIVE
+  ORAL_HISTORY
+  WEBSITE
+}
+
+enum AIJobType {
+  CHEF_CHAT
+  CONTENT_GENERATION
+  HISTORICAL_VALIDATION
+  TRANSLATION
+  SEO_WRITING
+  ALTERNATIVE_EXPLANATION
+  IMAGE_GENERATION
+  QUALITY_CONTROL
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+  CANCELLED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  HIDDEN
+}
+
+enum NotificationType {
+  SYSTEM
+  CONTENT
+  NEWSLETTER
+  MODERATION
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  ARCHIVE
+  ROLE_CHANGE
+}
+
+// ------------------------- KİMLİK / KULLANICI -------------------------
+
+/// id = Supabase Auth UID (uuid). Rol JWT claim'ine yansıtılır; RLS bu alana bakar.
+model User {
+  id          String   @id @db.Uuid
+  email       String   @unique
+  role        Role     @default(USER)
+  displayName String?
+  avatarUrl   String?
+  locale      String   @default("tr")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author        Author?
+  favorites     Favorite[]
+  collections   Collection[]
+  comments      Comment[]
+  aiJobs        AIJob[]
+  notifications Notification[]
+  adminLogs     AdminLog[]
+  auditLogs     AuditLog[]
+}
+
+/// Yayın imzası — kullanıcı hesabından ayrıdır (kalem adı, konuk yazar vb. mümkün olur).
+model Author {
+  id        String  @id @default(cuid())
+  userId    String? @unique @db.Uuid
+  slug      String  @unique
+  name      String
+  bio       String?
+  avatarUrl String?
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recipes Recipe[]
+}
+
+// --------------------------- COĞRAFYA ---------------------------
+
+model Country {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  iso2      String   @unique @db.Char(2)
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+
+  translations CountryTranslation[]
+  regions      Region[]
+  cities       City[]
+  recipes      Recipe[]
+}
+
+model CountryTranslation {
+  id          String  @id @default(cuid())
+  countryId   String
+  locale      String
+  name        String
+  description String?
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, locale])
+}
+
+model Region {
+  id        String @id @default(cuid())
+  slug      String @unique
+  countryId String
+
+  country      Country             @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  translations RegionTranslation[]
+  cities       City[]
+
+  @@index([countryId])
+}
+
+model RegionTranslation {
+  id       String @id @default(cuid())
+  regionId String
+  locale   String
+  name     String
+
+  region Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, locale])
+}
+
+model City {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  countryId String
+  regionId  String?
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+
+  country      Country           @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  region       Region?           @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  translations CityTranslation[]
+  recipes      Recipe[]
+
+  @@index([countryId])
+}
+
+model CityTranslation {
+  id     String @id @default(cuid())
+  cityId String
+  locale String
+  name   String
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([cityId, locale])
+}
+
+// ----------------------------- TARİH -----------------------------
+
+/// Yıllar tamsayı; negatif değer = M.Ö. (ör. -3000). Aralık modeli kesin tarih dayatmaz.
+model Civilization {
+  id        String @id @default(cuid())
+  slug      String @unique
+  startYear Int?
+  endYear   Int?
+
+  translations CivilizationTranslation[]
+  dynasties    Dynasty[]
+  eras         Era[]
+  recipes      Recipe[]
+}
+
+model CivilizationTranslation {
+  id             String  @id @default(cuid())
+  civilizationId String
+  locale         String
+  name           String
+  description    String?
+
+  civilization Civilization @relation(fields: [civilizationId], references: [id], onDelete: Cascade)
+
+  @@unique([civilizationId, locale])
+}
+
+model Dynasty {
+  id             String @id @default(cuid())
+  slug           String @unique
+  civilizationId String
+  startYear      Int?
+  endYear        Int?
+
+  civilization Civilization         @relation(fields: [civilizationId], references: [id], onDelete: Cascade)
+  translations DynastyTranslation[]
+  eras         Era[]
+
+  @@index([civilizationId])
+}
+
+model DynastyTranslation {
+  id        String @id @default(cuid())
+  dynastyId String
+  locale    String
+  name      String
+
+  dynasty Dynasty @relation(fields: [dynastyId], references: [id], onDelete: Cascade)
+
+  @@unique([dynastyId, locale])
+}
+
+model Era {
+  id             String  @id @default(cuid())
+  slug           String  @unique
+  civilizationId String?
+  dynastyId      String?
+  startYear      Int
+  endYear        Int?
+
+  civilization   Civilization?    @relation(fields: [civilizationId], references: [id], onDelete: SetNull)
+  dynasty        Dynasty?         @relation(fields: [dynastyId], references: [id], onDelete: SetNull)
+  translations   EraTranslation[]
+  recipes        Recipe[]
+  timelineEvents TimelineEvent[]
+
+  @@index([startYear])
+}
+
+model EraTranslation {
+  id          String  @id @default(cuid())
+  eraId       String
+  locale      String
+  name        String
+  description String?
+
+  era Era @relation(fields: [eraId], references: [id], onDelete: Cascade)
+
+  @@unique([eraId, locale])
+}
+
+/// Zaman çizelgesi düğümleri — bir tarife bağlanabilir ama zorunlu değildir
+/// (ör. "Baharat Yolu'nun açılışı" tarifsiz bir olaydır).
+model TimelineEvent {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  year     Int
+  eraId    String?
+  recipeId String?
+
+  era          Era?                       @relation(fields: [eraId], references: [id], onDelete: SetNull)
+  recipe       Recipe?                    @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  translations TimelineEventTranslation[]
+
+  @@index([year])
+}
+
+model TimelineEventTranslation {
+  id          String  @id @default(cuid())
+  eventId     String
+  locale      String
+  title       String
+  description String?
+
+  event TimelineEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, locale])
+}
+
+// -------------------------- SINIFLANDIRMA --------------------------
+
+model Cuisine {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  translations CuisineTranslation[]
+  recipes      Recipe[]
+}
+
+model CuisineTranslation {
+  id          String  @id @default(cuid())
+  cuisineId   String
+  locale      String
+  name        String
+  description String?
+
+  cuisine Cuisine @relation(fields: [cuisineId], references: [id], onDelete: Cascade)
+
+  @@unique([cuisineId, locale])
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  parentId String?
+
+  parent       Category?             @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[]            @relation("CategoryTree")
+  translations CategoryTranslation[]
+  recipes      Recipe[]
+}
+
+model CategoryTranslation {
+  id         String @id @default(cuid())
+  categoryId String
+  locale     String
+  name       String
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  translations TagTranslation[]
+  recipes      RecipeTag[]
+}
+
+model TagTranslation {
+  id     String @id @default(cuid())
+  tagId  String
+  locale String
+  name   String
+
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, locale])
+}
+
+model RecipeTag {
+  recipeId String
+  tagId    String
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, tagId])
+}
+
+// ----------------------------- TARİF -----------------------------
+
+model Recipe {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  status         ContentStatus @default(DRAFT)
+  cuisineId      String
+  countryId      String
+  cityId         String?
+  eraId          String?
+  civilizationId String?
+  categoryId     String?
+  authorId       String
+  heroImageId    String?       @unique
+  latitude       Decimal?      @db.Decimal(9, 6)
+  longitude      Decimal?      @db.Decimal(9, 6)
+  prepMinutes    Int
+  cookMinutes    Int
+  restMinutes    Int?
+  servings       Int
+  difficulty     Difficulty    @default(MEDIUM)
+  viewCount      Int           @default(0)
+  publishedAt    DateTime?
+  scheduledAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  cuisine      Cuisine       @relation(fields: [cuisineId], references: [id])
+  country      Country       @relation(fields: [countryId], references: [id])
+  city         City?         @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  era          Era?          @relation(fields: [eraId], references: [id], onDelete: SetNull)
+  civilization Civilization? @relation(fields: [civilizationId], references: [id], onDelete: SetNull)
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author       Author        @relation(fields: [authorId], references: [id])
+  heroImage    Image?        @relation("RecipeHero", fields: [heroImageId], references: [id], onDelete: SetNull)
+
+  translations   RecipeTranslation[]
+  steps          RecipeStep[]
+  ingredients    RecipeIngredient[]
+  nutrition      Nutrition?
+  sources        RecipeSource[]
+  tags           RecipeTag[]
+  gallery        Gallery?
+  favorites      Favorite[]
+  collections    CollectionRecipe[]
+  comments       Comment[]
+  timelineEvents TimelineEvent[]
+
+  @@index([cuisineId, status, publishedAt])
+  @@index([countryId, eraId])
+  @@index([status, scheduledAt])
+}
+
+model RecipeTranslation {
+  id        String  @id @default(cuid())
+  recipeId  String
+  locale    String
+  title     String
+  summary   String
+  /// Tarihsel anlatı — markdown
+  history   String?
+  metaTitle String?
+  metaDesc  String?
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, locale])
+}
+
+model RecipeStep {
+  id              String @id @default(cuid())
+  recipeId        String
+  sortOrder       Int
+  durationMinutes Int?
+
+  recipe       Recipe                  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  translations RecipeStepTranslation[]
+
+  @@unique([recipeId, sortOrder])
+}
+
+model RecipeStepTranslation {
+  id      String  @id @default(cuid())
+  stepId  String
+  locale  String
+  title   String?
+  content String
+
+  step RecipeStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@unique([stepId, locale])
+}
+
+// ---------------------------- MALZEME ----------------------------
+
+model Ingredient {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  /// baharat, tahıl, et, süt ürünü... (Faz 2'de ayrı tabloya normalize edilebilir)
+  category    String?
+  seasonality String?
+  isAllergen  Boolean @default(false)
+  /// 100 g başına temel besin değerleri (dinamik yeniden hesap için)
+  nutritionPer100g Json?
+
+  translations   IngredientTranslation[]
+  recipeUses     RecipeIngredient[]
+  alternatives   IngredientAlternative[] @relation("BaseIngredient")
+  alternativeFor IngredientAlternative[] @relation("AlternativeIngredient")
+}
+
+model IngredientTranslation {
+  id           String  @id @default(cuid())
+  ingredientId String
+  locale       String
+  name         String
+  description  String?
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, locale])
+}
+
+/// Alternatif de bir Ingredient'tır — besin değeri, çevirisi ve kendi
+/// alternatifleri otomatik olarak gelir. ratio: 1 birim yerine kaç birim.
+model IngredientAlternative {
+  id            String          @id @default(cuid())
+  ingredientId  String
+  alternativeId String
+  type          AlternativeType
+  ratio         Decimal         @default(1.0) @db.Decimal(6, 3)
+  /// AI üretimi açıklama — yalnızca isVerified=true iken kullanıcıya gösterilir
+  aiExplanation String?
+  isVerified    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+
+  ingredient  Ingredient @relation("BaseIngredient", fields: [ingredientId], references: [id], onDelete: Cascade)
+  alternative Ingredient @relation("AlternativeIngredient", fields: [alternativeId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, alternativeId, type])
+  @@index([ingredientId, type])
+}
+
+model RecipeIngredient {
+  id           String  @id @default(cuid())
+  recipeId     String
+  ingredientId String
+  quantity     Decimal @db.Decimal(10, 3)
+  unit         Unit
+  note         String?
+  /// Bölüm etiketi (ör. "Şerbet için") — aynı malzeme iki grupta yer alabilir
+  groupLabel   String?
+  isOptional   Boolean @default(false)
+  sortOrder    Int
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([recipeId, sortOrder])
+  @@index([ingredientId])
+}
+
+model Nutrition {
+  id            String  @id @default(cuid())
+  recipeId      String  @unique
+  calories      Int
+  proteinG      Decimal @db.Decimal(6, 2)
+  fatG          Decimal @db.Decimal(6, 2)
+  carbsG        Decimal @db.Decimal(6, 2)
+  fiberG        Decimal? @db.Decimal(6, 2)
+  sugarG        Decimal? @db.Decimal(6, 2)
+  sodiumMg      Int?
+  isAiEstimated Boolean @default(false)
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+// --------------------------- KAYNAKÇA ---------------------------
+
+model HistoricalSource {
+  id          String     @id @default(cuid())
+  type        SourceType
+  title       String
+  author      String?
+  year        Int?
+  url         String?
+  /// 1–5, editoryal güvenilirlik değerlendirmesi
+  reliability Int        @default(3)
+  notes       String?
+
+  recipes RecipeSource[]
+}
+
+model RecipeSource {
+  recipeId String
+  sourceId String
+  /// Sayfa/folyo/bölüm atfı
+  citation String?
+
+  recipe Recipe           @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  source HistoricalSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, sourceId])
+}
+
+// ----------------------------- MEDYA -----------------------------
+
+model Gallery {
+  id       String @id @default(cuid())
+  recipeId String @unique
+
+  recipe Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  images Image[]
+}
+
+model Image {
+  id          String   @id @default(cuid())
+  galleryId   String?
+  /// Supabase Storage yolu (bucket/klasör/dosya)
+  storagePath String
+  alt         String
+  width       Int?
+  height      Int?
+  blurDataUrl String?
+  credit      String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  gallery Gallery? @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  heroOf  Recipe?  @relation("RecipeHero")
+}
+
+// -------------------------- KULLANICI VERİSİ --------------------------
+
+model Favorite {
+  userId    String   @db.Uuid
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, recipeId])
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  userId      String   @db.Uuid
+  name        String
+  description String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CollectionRecipe[]
+
+  @@index([userId])
+}
+
+model CollectionRecipe {
+  collectionId String
+  recipeId     String
+  addedAt      DateTime @default(now())
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, recipeId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  recipeId  String
+  userId    String        @db.Uuid
+  parentId  String?
+  content   String
+  status    CommentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+
+  recipe  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies Comment[] @relation("CommentThread")
+
+  @@index([recipeId, status])
+}
+
+// ------------------------------- AI -------------------------------
+
+/// Versiyonlu prompt kayıt defteri — prompt regression testlerinin veri kaynağı.
+model PromptHistory {
+  id        String   @id @default(cuid())
+  name      String
+  version   Int
+  template  String
+  model     String
+  notes     String?
+  createdAt DateTime @default(now())
+
+  jobs AIJob[]
+
+  @@unique([name, version])
+}
+
+/// Her AI çağrısı izlenir: maliyet, token, sonuç. AI hiçbir zaman doğrudan
+/// yayına yazmaz — result her zaman taslak/öneri olarak tüketilir.
+model AIJob {
+  id              String    @id @default(cuid())
+  type            AIJobType
+  status          JobStatus @default(QUEUED)
+  promptHistoryId String
+  entityType      String?
+  entityId        String?
+  inputTokens     Int?
+  outputTokens    Int?
+  costUsd         Decimal?  @db.Decimal(10, 5)
+  result          Json?
+  error           String?
+  createdById     String    @db.Uuid
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  promptHistory PromptHistory @relation(fields: [promptHistoryId], references: [id])
+  createdBy     User          @relation(fields: [createdById], references: [id])
+
+  @@index([type, status, createdAt])
+  @@index([entityType, entityId])
+}
+
+// --------------------- BİLDİRİM / BÜLTEN / LOG ---------------------
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  body      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  locale         String    @default("tr")
+  /// Double opt-in doğrulama token'ı
+  token          String    @unique @default(cuid())
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+/// Yönetici eylem günlüğü (kim, ne yaptı — insan okunur)
+model AdminLog {
+  id        String   @id @default(cuid())
+  userId    String   @db.Uuid
+  action    String
+  detail    Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+/// Varlık düzeyinde değişiklik kaydı (before/after — makine okunur, geri alınabilirlik)
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?     @db.Uuid
+  entityType String
+  entityId   String
+  action     AuditAction
+  before     Json?
+  after      Json?
+  createdAt  DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+}

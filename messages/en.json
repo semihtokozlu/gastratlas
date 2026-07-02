@@ -1,0 +1,21 @@
+{
+  "brand": {
+    "name": "GastrAtlas",
+    "tagline": "Explore history through flavor"
+  },
+  "home": {
+    "heroTitle": "The world's living culinary atlas",
+    "heroSubtitle": "Every recipe carries a culture, an era, a geography and a story. Starting with Ottoman palace cuisine, we are mapping the tables of civilizations.",
+    "cta": "Start exploring",
+    "statusNote": "Platform in preparation — Phase 0"
+  },
+  "nav": {
+    "recipes": "Recipes",
+    "map": "Map",
+    "timeline": "Timeline",
+    "about": "About"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

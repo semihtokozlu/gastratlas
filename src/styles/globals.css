@@ -1,0 +1,15 @@
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+  }
+  h1, h2, h3, h4 { @apply font-serif tracking-tight; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-accent; }
+}

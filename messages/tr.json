@@ -1,0 +1,21 @@
+{
+  "brand": {
+    "name": "GastrAtlas",
+    "tagline": "Tarihi lezzetle keşfedin"
+  },
+  "home": {
+    "heroTitle": "Dünyanın yaşayan gastronomi atlası",
+    "heroSubtitle": "Her tarif bir kültürü, bir dönemi, bir coğrafyayı ve bir hikâyeyi taşır. Osmanlı saray mutfağından başlayarak medeniyetlerin sofralarını haritalıyoruz.",
+    "cta": "Keşfetmeye başla",
+    "statusNote": "Platform hazırlanıyor — Faz 0"
+  },
+  "nav": {
+    "recipes": "Tarifler",
+    "map": "Harita",
+    "timeline": "Zaman Çizelgesi",
+    "about": "Hakkında"
+  },
+  "footer": {
+    "rights": "Tüm hakları saklıdır."
+  }
+}
