@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 import type { AlternativeType, Difficulty, Unit } from "@prisma/client";
@@ -159,7 +160,13 @@ export async function getFilterOptions(locale: string): Promise<{
   };
 }
 
-export async function getRecipeBySlug(slug: string, locale: string): Promise<RecipeDetail | null> {
+/**
+ * React.cache() ile sarmalı: generateMetadata + sayfa gövdesi aynı slug/locale
+ * için bu fonksiyonu iki kez çağırıyor; cache olmadan build-time SSG'de
+ * paralel sayfa üretimi Supabase pooler'ının bağlantı havuzunu zorluyor
+ * (bkz. "connection pool timeout" build hatası).
+ */
+export const getRecipeBySlug = cache(async (slug: string, locale: string): Promise<RecipeDetail | null> => {
   const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
 
   const recipe = await db.recipe.findFirst({
@@ -261,7 +268,7 @@ export async function getRecipeBySlug(slug: string, locale: string): Promise<Rec
       reliability: rs.source.reliability,
     })),
   };
-}
+});
 
 export type RecipeGeoPoint = {
   slug: string;

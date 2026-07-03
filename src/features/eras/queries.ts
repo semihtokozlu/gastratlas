@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 
@@ -29,7 +30,7 @@ export type EraDetail = {
   civilizationName: string | null;
 };
 
-export async function getEraBySlug(slug: string, locale: string): Promise<EraDetail | null> {
+export const getEraBySlug = cache(async (slug: string, locale: string): Promise<EraDetail | null> => {
   const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
 
   const era = await db.era.findUnique({
@@ -52,7 +53,7 @@ export async function getEraBySlug(slug: string, locale: string): Promise<EraDet
     endYear: era.endYear,
     civilizationName: era.civilization ? (pickTranslation(era.civilization.translations, locale)?.name ?? null) : null,
   };
-}
+});
 
 export async function getPublishedEraSlugs(): Promise<string[]> {
   const rows = await db.era.findMany({

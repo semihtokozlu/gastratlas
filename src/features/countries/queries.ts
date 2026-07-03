@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 
@@ -45,7 +46,7 @@ export type CountryDetail = {
   longitude: number | null;
 };
 
-export async function getCountryBySlug(slug: string, locale: string): Promise<CountryDetail | null> {
+export const getCountryBySlug = cache(async (slug: string, locale: string): Promise<CountryDetail | null> => {
   const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
 
   const country = await db.country.findUnique({
@@ -64,7 +65,7 @@ export async function getCountryBySlug(slug: string, locale: string): Promise<Co
     latitude: country.latitude?.toNumber() ?? null,
     longitude: country.longitude?.toNumber() ?? null,
   };
-}
+});
 
 export async function getPublishedCountrySlugs(): Promise<string[]> {
   const rows = await db.country.findMany({
