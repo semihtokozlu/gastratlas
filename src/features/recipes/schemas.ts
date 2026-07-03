@@ -20,11 +20,6 @@ export const recalculateRecipeSchema = z.object({
     .default([]),
 });
 
-export const subscribeNewsletterSchema = z.object({
-  email: z.string().email().max(254),
-  locale: z.enum(["tr", "en"]),
-});
-
 export type RecalculateRecipeInput = z.infer<typeof recalculateRecipeSchema>;
 
 /** Standart Action dönüş tipi (planlama paketi §8). */

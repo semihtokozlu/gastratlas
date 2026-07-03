@@ -51,6 +51,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${serif.variable} ${sans.variable}`}>
       <body>
+        {/* Hydration'dan önce tema tercihini uygular — yanlış temanın anlık görünmesini (FOUC) engeller. */}
+        {/* eslint-disable-next-line react/no-danger */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("gastratlas-theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();`,
+          }}
+        />
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           {children}

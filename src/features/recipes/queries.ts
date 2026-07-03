@@ -34,6 +34,7 @@ export type RecipeDetail = {
   publishedAt: Date | null;
   heroImage: HeroImage | null;
   countryName: string;
+  countrySlug: string;
   cityName: string | null;
   eraName: string | null;
   cuisineName: string;
@@ -247,6 +248,7 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
         }
       : null,
     countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
+    countrySlug: recipe.country.slug,
     cityName: recipe.city ? (pickTranslation(recipe.city.translations, locale)?.name ?? recipe.city.slug) : null,
     eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,
     cuisineName: pickTranslation(recipe.cuisine.translations, locale)?.name ?? recipe.cuisine.slug,

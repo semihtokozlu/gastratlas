@@ -10,15 +10,30 @@
     "statusNote": "Platform hazırlanıyor — Faz 1"
   },
   "nav": {
+    "home": "Anasayfa",
     "recipes": "Tarifler",
     "countries": "Ülkeler",
     "map": "Harita",
     "timeline": "Zaman Çizelgesi",
     "about": "Hakkında",
-    "switchLocale": "English"
+    "switchLocale": "English",
+    "darkMode": "Koyu Mod",
+    "lightMode": "Açık Mod",
+    "openMenu": "Menüyü aç",
+    "closeMenu": "Menüyü kapat"
   },
   "footer": {
     "rights": "Tüm hakları saklıdır."
+  },
+  "newsletter": {
+    "title": "Bültenimize katılın",
+    "subtitle": "Yeni tarifler ve tarihçe yazıları e-postanıza gelsin.",
+    "placeholder": "eposta@ornek.com",
+    "submit": "Abone ol",
+    "submitting": "Gönderiliyor…",
+    "success": "Teşekkürler! Abone oldunuz.",
+    "alreadySubscribed": "Bu e-posta zaten abone.",
+    "error": "Bir şeyler ters gitti, tekrar deneyin."
   },
   "recipe": {
     "servings": "Porsiyon",
@@ -56,6 +71,9 @@
     },
     "heroImagePlaceholder": "Görsel yakında eklenecek",
     "aiGeneratedImage": "AI ile üretildi",
+    "share": "Paylaş",
+    "copyLink": "Bağlantıyı kopyala",
+    "linkCopied": "Kopyalandı",
     "nutritionTitle": "Besin Değerleri (porsiyon başına)",
     "calories": "Kalori",
     "protein": "Protein",

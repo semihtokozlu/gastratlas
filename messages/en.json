@@ -10,15 +10,30 @@
     "statusNote": "Platform in preparation — Phase 1"
   },
   "nav": {
+    "home": "Home",
     "recipes": "Recipes",
     "countries": "Countries",
     "map": "Map",
     "timeline": "Timeline",
     "about": "About",
-    "switchLocale": "Türkçe"
+    "switchLocale": "Türkçe",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
     "rights": "All rights reserved."
+  },
+  "newsletter": {
+    "title": "Join our newsletter",
+    "subtitle": "New recipes and history essays, straight to your inbox.",
+    "placeholder": "you@example.com",
+    "submit": "Subscribe",
+    "submitting": "Submitting…",
+    "success": "Thanks! You're subscribed.",
+    "alreadySubscribed": "This email is already subscribed.",
+    "error": "Something went wrong, please try again."
   },
   "recipe": {
     "servings": "Servings",
@@ -56,6 +71,9 @@
     },
     "heroImagePlaceholder": "Image coming soon",
     "aiGeneratedImage": "AI-generated",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied",
     "nutritionTitle": "Nutrition (per serving)",
     "calories": "Calories",
     "protein": "Protein",

@@ -14,6 +14,8 @@ import { NutritionTable } from "@/components/recipe/NutritionTable";
 import { HistorySection } from "@/components/recipe/HistorySection";
 import { SourceList } from "@/components/recipe/SourceList";
 import { CommentSection } from "@/components/recipe/CommentSection";
+import { ShareBar } from "@/components/recipe/ShareBar";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 export const revalidate = 3600;
 
@@ -58,8 +60,10 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
   if (!recipe) notFound();
 
   const t = await getTranslations({ locale, namespace: "recipe" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const pageUrl = `${siteUrl}/${locale}/recipes/${slug}`;
   const jsonLd = buildRecipeJsonLd({
     name: recipe.title,
     description: recipe.summary,
@@ -73,7 +77,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
     steps: recipe.steps.map((s) => ({ name: s.title ?? undefined, text: s.content })),
     calories: recipe.nutrition?.calories,
     cuisine: recipe.cuisineName,
-    url: `${siteUrl}/${locale}/recipes/${slug}`,
+    url: pageUrl,
   });
 
   return (
@@ -81,6 +85,13 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ViewTracker recipeId={recipe.id} />
+      <Breadcrumb
+        items={[
+          { label: tNav("home"), href: "/" },
+          { label: tNav("recipes"), href: "/recipes" },
+          { label: recipe.title },
+        ]}
+      />
       <RecipeHero
         title={recipe.title}
         summary={recipe.summary}
@@ -88,6 +99,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         eraName={recipe.eraName}
         heroImage={recipe.heroImage}
       />
+      <ShareBar title={recipe.title} url={pageUrl} />
       <MetaBar
         prepMinutes={recipe.prepMinutes}
         cookMinutes={recipe.cookMinutes}
