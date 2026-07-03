@@ -6,6 +6,7 @@ import { getRecipeCards } from "@/features/recipes/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { routing } from "@/i18n/routing";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const revalidate = 3600;
 
@@ -56,8 +57,10 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
         {t("recipesInCountry")}
       </h2>
       <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-        {recipes.map((recipe) => (
-          <RecipeCard key={recipe.slug} {...recipe} />
+        {recipes.map((recipe, idx) => (
+          <Reveal key={recipe.slug} delayMs={idx * 60}>
+            <RecipeCard {...recipe} />
+          </Reveal>
         ))}
       </div>
     </main>

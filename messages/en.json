@@ -10,7 +10,15 @@
     "methodologyLink": "How we work",
     "featuredTitle": "Recently added",
     "viewAllRecipes": "View all recipes",
-    "cuisinesTitle": "Cuisines"
+    "cuisinesTitle": "Cuisines",
+    "dashboardTitle": "Where you left off",
+    "yourFavorites": "Your favorites",
+    "yourCollections": "Your collections",
+    "viewAllFavorites": "All your favorites",
+    "viewAllCollections": "All your collections",
+    "communityTitle": "From the community",
+    "surpriseMe": "Surprise me",
+    "surpriseMeLoading": "Picking…"
   },
   "nav": {
     "home": "Home",
@@ -76,6 +84,7 @@
       "BUNCH": "bunch"
     },
     "heroImagePlaceholder": "Image coming soon",
+    "viewCount": "{count} views",
     "aiGeneratedImage": "AI-generated",
     "share": "Share",
     "copyLink": "Copy link",

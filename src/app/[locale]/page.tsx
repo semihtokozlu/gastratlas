@@ -3,6 +3,10 @@ import { Link } from "@/i18n/navigation";
 import { getRecipeCards } from "@/features/recipes/queries";
 import { getCountries } from "@/features/countries/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
+import { PersonalizedHomeSection } from "@/components/home/PersonalizedHomeSection";
+import { Reveal } from "@/components/ui/Reveal";
+import { CommunityCommentsWidget } from "@/components/home/CommunityCommentsWidget";
+import { SurpriseMeButton } from "@/components/home/SurpriseMeButton";
 
 export const revalidate = 3600;
 
@@ -35,6 +39,7 @@ export default async function HomePage({
           >
             {t("cta")}
           </Link>
+          <SurpriseMeButton />
           <Link
             href="/methodology"
             className="rounded-md border border-line px-8 py-3 text-sm text-ink-muted transition-colors duration-200 ease-brand hover:text-ink"
@@ -43,6 +48,8 @@ export default async function HomePage({
           </Link>
         </div>
       </section>
+
+      <PersonalizedHomeSection />
 
       {featuredRecipes.length > 0 && (
         <section className="container py-12">
@@ -55,8 +62,10 @@ export default async function HomePage({
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredRecipes.map((recipe) => (
-              <RecipeCard key={recipe.slug} {...recipe} />
+            {featuredRecipes.map((recipe, idx) => (
+              <Reveal key={recipe.slug} delayMs={idx * 60}>
+                <RecipeCard {...recipe} />
+              </Reveal>
             ))}
           </div>
         </section>
@@ -68,26 +77,29 @@ export default async function HomePage({
             {t("cuisinesTitle")}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {countries.map((country) => (
-              <Link
-                key={country.slug}
-                href={`/countries/${country.slug}`}
-                className="rounded-lg border border-line p-5 transition-colors duration-200 ease-brand hover:border-accent"
-              >
-                <p className="font-serif text-ink" style={{ fontSize: "var(--text-h3)" }}>
-                  {country.name}
-                </p>
-                {country.description && (
-                  <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{country.description}</p>
-                )}
-                <p className="mt-3 text-xs uppercase tracking-wide text-accent">
-                  {country.recipeCount} {tCountries("recipeCount")}
-                </p>
-              </Link>
+            {countries.map((country, idx) => (
+              <Reveal key={country.slug} delayMs={idx * 60}>
+                <Link
+                  href={`/countries/${country.slug}`}
+                  className="block rounded-lg border border-line p-5 transition-colors duration-200 ease-brand hover:border-accent"
+                >
+                  <p className="font-serif text-ink" style={{ fontSize: "var(--text-h3)" }}>
+                    {country.name}
+                  </p>
+                  {country.description && (
+                    <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{country.description}</p>
+                  )}
+                  <p className="mt-3 text-xs uppercase tracking-wide text-accent">
+                    {country.recipeCount} {tCountries("recipeCount")}
+                  </p>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </section>
       )}
+
+      <CommunityCommentsWidget locale={locale} />
     </main>
   );
 }

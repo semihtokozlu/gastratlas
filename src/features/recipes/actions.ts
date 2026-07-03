@@ -90,3 +90,21 @@ export async function incrementViewCount(recipeId: unknown): Promise<ActionResul
     return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
   }
 }
+
+/** PUBLIC — "Şaşırt beni" keşif butonu için rastgele yayında bir tarif seçer. */
+export async function getRandomRecipeSlug(): Promise<ActionResult<{ slug: string }>> {
+  const count = await db.recipe.count({ where: { status: "PUBLISHED" } });
+  if (count === 0) {
+    return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
+  }
+  const skip = Math.floor(Math.random() * count);
+  const recipe = await db.recipe.findFirst({
+    where: { status: "PUBLISHED" },
+    skip,
+    select: { slug: true },
+  });
+  if (!recipe) {
+    return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
+  }
+  return { ok: true, data: { slug: recipe.slug } };
+}

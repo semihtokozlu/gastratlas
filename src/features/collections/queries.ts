@@ -109,6 +109,8 @@ export async function getCollectionDetail(
               isAiGenerated: recipe.heroImage.isAiGenerated,
             }
           : null,
+        viewCount: recipe.viewCount,
+        publishedAt: recipe.publishedAt,
       },
     ];
   });

@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/guards";
+import { routing } from "@/i18n/routing";
 
 export type CommentItem = {
   id: string;
@@ -34,4 +35,43 @@ export async function getComments(recipeId: string): Promise<CommentItem[]> {
     userName: c.user.displayName ?? "GastrAtlas Kullanıcısı",
     isOwn: user?.id === c.userId,
   }));
+}
+
+export type RecentComment = {
+  id: string;
+  content: string;
+  createdAt: Date;
+  userName: string;
+  recipeSlug: string;
+  recipeTitle: string;
+};
+
+/** PUBLIC — herkese açık, yalnızca onaylanmış yorumlar (moderasyon kuyruğunu atlamaz). */
+export async function getRecentApprovedComments(locale: string, limit = 3): Promise<RecentComment[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const comments = await db.comment.findMany({
+    where: { status: "APPROVED" },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      user: { select: { displayName: true } },
+      recipe: { select: { slug: true, translations: { where: localeFilter } } },
+    },
+  });
+
+  return comments.flatMap((c) => {
+    const t = c.recipe.translations.find((tr) => tr.locale === locale) ?? c.recipe.translations[0];
+    if (!t) return [];
+    return [
+      {
+        id: c.id,
+        content: c.content,
+        createdAt: c.createdAt,
+        userName: c.user.displayName ?? "GastrAtlas Kullanıcısı",
+        recipeSlug: c.recipe.slug,
+        recipeTitle: t.title,
+      },
+    ];
+  });
 }

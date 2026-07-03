@@ -10,7 +10,15 @@
     "methodologyLink": "Nasıl çalışıyoruz?",
     "featuredTitle": "Yeni eklenenler",
     "viewAllRecipes": "Tüm tarifleri gör",
-    "cuisinesTitle": "Mutfaklar"
+    "cuisinesTitle": "Mutfaklar",
+    "dashboardTitle": "Kaldığın yerden",
+    "yourFavorites": "Favorilerin",
+    "yourCollections": "Koleksiyonların",
+    "viewAllFavorites": "Tüm favorilerin",
+    "viewAllCollections": "Tüm koleksiyonların",
+    "communityTitle": "Topluluktan",
+    "surpriseMe": "Şaşırt beni",
+    "surpriseMeLoading": "Seçiliyor…"
   },
   "nav": {
     "home": "Anasayfa",
@@ -76,6 +84,7 @@
       "BUNCH": "demet"
     },
     "heroImagePlaceholder": "Görsel yakında eklenecek",
+    "viewCount": "{count} görüntülenme",
     "aiGeneratedImage": "AI ile üretildi",
     "share": "Paylaş",
     "copyLink": "Bağlantıyı kopyala",

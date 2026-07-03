@@ -61,6 +61,8 @@ export async function getFavoriteRecipeCards(
               isAiGenerated: recipe.heroImage.isAiGenerated,
             }
           : null,
+        viewCount: recipe.viewCount,
+        publishedAt: recipe.publishedAt,
       },
     ];
   });

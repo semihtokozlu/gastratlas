@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getFilterOptions, getRecipeCards } from "@/features/recipes/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { FilterBar } from "@/components/discovery/FilterBar";
+import { Reveal } from "@/components/ui/Reveal";
 
 type Params = { locale: string };
 type SearchParams = { country?: string; era?: string; category?: string };
@@ -49,8 +50,10 @@ export default async function RecipesPage({
         <p className="text-ink-muted">{t("noResults")}</p>
       ) : (
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe.slug} {...recipe} />
+          {recipes.map((recipe, idx) => (
+            <Reveal key={recipe.slug} delayMs={idx * 60}>
+              <RecipeCard {...recipe} />
+            </Reveal>
           ))}
         </div>
       )}

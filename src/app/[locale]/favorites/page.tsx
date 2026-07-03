@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/guards";
 import { getFavoriteRecipeCards } from "@/features/favorites/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { Link } from "@/i18n/navigation";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default async function FavoritesPage({
   params,
@@ -37,8 +38,10 @@ export default async function FavoritesPage({
         </div>
       ) : (
         <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} {...recipe} />
+          {recipes.map((recipe, idx) => (
+            <Reveal key={recipe.id} delayMs={idx * 60}>
+              <RecipeCard {...recipe} />
+            </Reveal>
           ))}
         </div>
       )}

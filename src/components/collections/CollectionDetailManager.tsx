@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
+import { Reveal } from "@/components/ui/Reveal";
 import { updateCollection, deleteCollection, removeRecipeFromCollection } from "@/features/collections/actions";
 import type { CollectionDetail } from "@/features/collections/queries";
 
@@ -106,8 +107,8 @@ export function CollectionDetailManager({ collection }: { collection: Collection
         <p className="mt-10 text-ink-muted">{t("empty")}</p>
       ) : (
         <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {recipes.map((recipe) => (
-            <div key={recipe.id}>
+          {recipes.map((recipe, idx) => (
+            <Reveal key={recipe.id} delayMs={idx * 60}>
               <RecipeCard {...recipe} />
               {collection.isOwner && (
                 <button
@@ -117,7 +118,7 @@ export function CollectionDetailManager({ collection }: { collection: Collection
                   {t("remove")}
                 </button>
               )}
-            </div>
+            </Reveal>
           ))}
         </div>
       )}

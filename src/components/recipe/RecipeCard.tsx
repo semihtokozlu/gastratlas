@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/storage/upload";
+import { formatRelativeTime } from "@/lib/formatRelativeTime";
 import type { Difficulty } from "@prisma/client";
 import type { HeroImage } from "@/features/recipes/queries";
 
@@ -14,6 +15,8 @@ export function RecipeCard({
   cookMinutes,
   difficulty,
   heroImage,
+  viewCount,
+  publishedAt,
 }: {
   slug: string;
   title: string;
@@ -23,21 +26,21 @@ export function RecipeCard({
   cookMinutes: number;
   difficulty: Difficulty;
   heroImage: HeroImage | null;
+  viewCount: number;
+  publishedAt: Date | null;
 }) {
   const t = useTranslations("recipe");
+  const locale = useLocale();
 
   return (
-    <Link
-      href={`/recipes/${slug}`}
-      className="group block overflow-hidden rounded-lg transition-transform duration-200 ease-brand hover:scale-[1.02]"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gradient-to-br from-surface to-primary/10 transition-[filter] duration-200 ease-brand group-hover:brightness-105">
+    <Link href={`/recipes/${slug}`} className="group block">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gradient-to-br from-surface to-primary/10 shadow-card transition-shadow duration-300 ease-brand group-hover:shadow-lg">
         {heroImage && (
           <Image
             src={getPublicImageUrl(heroImage.storagePath)}
             alt={heroImage.alt}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-300 ease-brand group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         )}
@@ -51,6 +54,11 @@ export function RecipeCard({
       </h3>
       <p className="mt-1 text-sm text-ink-muted">
         {prepMinutes + cookMinutes} {t("minutesAbbr")} · {t(`difficulty.${difficulty}`)}
+      </p>
+      <p className="mt-1 text-xs text-ink-muted">
+        {publishedAt && formatRelativeTime(publishedAt, locale)}
+        {publishedAt && " · "}
+        {t("viewCount", { count: viewCount })}
       </p>
     </Link>
   );

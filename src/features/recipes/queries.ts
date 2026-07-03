@@ -32,6 +32,7 @@ export type RecipeDetail = {
   servings: number;
   difficulty: Difficulty;
   publishedAt: Date | null;
+  viewCount: number;
   heroImage: HeroImage | null;
   countryName: string;
   countrySlug: string;
@@ -92,6 +93,8 @@ export type RecipeCardData = {
   cookMinutes: number;
   difficulty: Difficulty;
   heroImage: HeroImage | null;
+  viewCount: number;
+  publishedAt: Date | null;
 };
 
 export type RecipeListFilters = {
@@ -143,6 +146,8 @@ export async function getRecipeCards(
               isAiGenerated: recipe.heroImage.isAiGenerated,
             }
           : null,
+        viewCount: recipe.viewCount,
+        publishedAt: recipe.publishedAt,
       },
     ];
   });
@@ -208,6 +213,8 @@ export async function getRelatedRecipes(
               isAiGenerated: recipe.heroImage.isAiGenerated,
             }
           : null,
+        viewCount: recipe.viewCount,
+        publishedAt: recipe.publishedAt,
       },
     ];
   });
@@ -305,6 +312,7 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
     servings: recipe.servings,
     difficulty: recipe.difficulty,
     publishedAt: recipe.publishedAt,
+    viewCount: recipe.viewCount,
     heroImage: recipe.heroImage
       ? {
           storagePath: recipe.heroImage.storagePath,

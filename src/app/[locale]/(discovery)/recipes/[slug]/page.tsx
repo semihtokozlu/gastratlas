@@ -115,6 +115,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         restMinutes={recipe.restMinutes}
         servings={recipe.servings}
         difficulty={recipe.difficulty}
+        viewCount={recipe.viewCount}
       />
       <IngredientList
         recipeId={recipe.id}
