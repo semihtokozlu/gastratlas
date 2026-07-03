@@ -49,7 +49,7 @@ export type RecipeDetail = {
     title: string | null;
     content: string;
   }[];
-  nutrition: { calories: number; proteinG: number; fatG: number; carbsG: number } | null;
+  nutrition: { calories: number; proteinG: number; fatG: number; carbsG: number; isAiEstimated: boolean } | null;
   sources: {
     title: string;
     author: string | null;
@@ -257,6 +257,7 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
           proteinG: recipe.nutrition.proteinG.toNumber(),
           fatG: recipe.nutrition.fatG.toNumber(),
           carbsG: recipe.nutrition.carbsG.toNumber(),
+          isAiEstimated: recipe.nutrition.isAiEstimated,
         }
       : null,
     sources: recipe.sources.map((rs) => ({

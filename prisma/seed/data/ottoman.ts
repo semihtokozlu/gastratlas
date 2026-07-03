@@ -71,6 +71,13 @@ export const ottomanSeed = {
     { slug: "allspice",      category: "spice",     tr: "Yenibahar",      en: "Allspice" },
     { slug: "dill",          category: "herb",      tr: "Dereotu",        en: "Dill" },
     { slug: "sour-cherry",   category: "fruit",     tr: "Vişne",          en: "Sour cherry" },
+    { slug: "tomato",        category: "vegetable", tr: "Domates",        en: "Tomato" },
+    { slug: "garlic",        category: "vegetable", tr: "Sarımsak",       en: "Garlic" },
+    { slug: "phyllo-dough",  category: "grain",     tr: "Yufka",          en: "Phyllo dough" },
+    { slug: "yogurt",        category: "dairy",     tr: "Yoğurt",         en: "Yogurt", isAllergen: true },
+    { slug: "egg",           category: "dairy",     tr: "Yumurta",        en: "Egg", isAllergen: true },
+    { slug: "dried-mint",    category: "herb",      tr: "Kuru nane",      en: "Dried mint" },
+    { slug: "flour",         category: "grain",     tr: "Un",             en: "Flour", isAllergen: true },
   ],
   alternatives: [
     // Tereyağı → Zeytinyağı: vegan ikame, hacimce ~%75

@@ -5,9 +5,11 @@ import { getPublishedRecipeSlugs, getRecipeBySlug } from "@/features/recipes/que
 import { buildRecipeJsonLd } from "@/lib/seo/jsonld";
 import { routing } from "@/i18n/routing";
 import { RecipeHero } from "@/components/recipe/RecipeHero";
+import { ViewTracker } from "@/components/recipe/ViewTracker";
 import { MetaBar } from "@/components/recipe/MetaBar";
 import { IngredientList } from "@/components/recipe/IngredientList";
 import { StepList } from "@/components/recipe/StepList";
+import { NutritionTable } from "@/components/recipe/NutritionTable";
 import { HistorySection } from "@/components/recipe/HistorySection";
 import { SourceList } from "@/components/recipe/SourceList";
 
@@ -74,6 +76,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
     <main className="container max-w-3xl py-12">
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ViewTracker recipeId={recipe.id} />
       <RecipeHero
         title={recipe.title}
         summary={recipe.summary}
@@ -104,6 +107,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         }))}
       />
       <StepList steps={recipe.steps} />
+      <NutritionTable nutrition={recipe.nutrition} />
       <HistorySection history={recipe.history} />
       <SourceList sources={recipe.sources} />
     </main>

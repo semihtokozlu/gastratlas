@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/auth/guards";
+import { recipeInputSchema } from "./schemas";
 import type { ActionResult } from "@/features/recipes/schemas";
-import type { ContentStatus } from "@prisma/client";
+import type { ContentStatus, Unit } from "@prisma/client";
 
 /**
  * Editoryal statü makinesi (planlama §1.6/§9): DRAFT/AI_REVIEW/EDITOR_REVIEW/
@@ -121,4 +122,122 @@ export async function publishRecipe(
   });
 
   return { ok: true, data: { status: recipe.status, scheduled: isFutureSchedule } };
+}
+
+/**
+ * Planlama §8.1 "admin.upsertRecipe" (geniş RecipeInput şeması) — EDITOR+.
+ * Yeni tarifler her zaman DRAFT olarak oluşturulur (AI/editör hiçbir zaman
+ * doğrudan yayına basmaz — §2.4); yayınlama yalnızca publishRecipe/
+ * setRecipeStatus üzerinden HISTORIAN+ ile mümkündür.
+ *
+ * Düzenlemede ingredients/steps/translations tamamen silinip yeniden
+ * oluşturulur — form, mevcut alt satırların kimliğini takip etmiyor, bu
+ * yüzden "tam değiştir" en basit doğru yaklaşımdır (transaction içinde).
+ */
+export async function upsertRecipe(input: unknown): Promise<ActionResult<{ id: string; slug: string }>> {
+  const parsed = recipeInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: { code: "VALIDATION", message: "Geçersiz girdi", fields: parsed.error.flatten().fieldErrors as Record<string, string> },
+    };
+  }
+
+  let user;
+  try {
+    user = await requireRole("EDITOR");
+  } catch (e) {
+    if (e instanceof AuthError) return authErrorResult(e);
+    throw e;
+  }
+
+  const data = parsed.data;
+
+  const scalarData = {
+    slug: data.slug,
+    cuisineId: data.cuisineId,
+    countryId: data.countryId,
+    cityId: data.cityId ?? null,
+    eraId: data.eraId ?? null,
+    civilizationId: data.civilizationId ?? null,
+    categoryId: data.categoryId ?? null,
+    authorId: data.authorId,
+    prepMinutes: data.prepMinutes,
+    cookMinutes: data.cookMinutes,
+    restMinutes: data.restMinutes ?? null,
+    servings: data.servings,
+    difficulty: data.difficulty,
+  };
+
+  const translationsCreate = [
+    { locale: "tr", ...data.tr },
+    { locale: "en", ...data.en },
+  ];
+  const ingredientsCreate = data.ingredients.map((i) => ({
+    ingredientId: i.ingredientId,
+    quantity: i.quantity,
+    unit: i.unit as Unit,
+    note: i.note ?? null,
+    groupLabel: i.groupLabel ?? null,
+    isOptional: i.isOptional,
+    sortOrder: i.sortOrder,
+  }));
+  const stepsCreate = data.steps.map((s) => ({
+    sortOrder: s.sortOrder,
+    durationMinutes: s.durationMinutes ?? null,
+    translations: { create: [{ locale: "tr", ...s.tr }, { locale: "en", ...s.en }] },
+  }));
+
+  try {
+    const recipe = await db.$transaction(async (tx) => {
+      if (data.id) {
+        const existing = await tx.recipe.findUnique({ where: { id: data.id } });
+        if (!existing) throw new Error("NOT_FOUND");
+
+        await tx.recipeIngredient.deleteMany({ where: { recipeId: data.id } });
+        await tx.recipeStep.deleteMany({ where: { recipeId: data.id } });
+        await tx.recipeTranslation.deleteMany({ where: { recipeId: data.id } });
+        if (data.nutrition) await tx.nutrition.deleteMany({ where: { recipeId: data.id } });
+
+        return tx.recipe.update({
+          where: { id: data.id },
+          data: {
+            ...scalarData,
+            translations: { create: translationsCreate },
+            ingredients: { create: ingredientsCreate },
+            steps: { create: stepsCreate },
+            ...(data.nutrition && { nutrition: { create: data.nutrition } }),
+          },
+        });
+      }
+
+      return tx.recipe.create({
+        data: {
+          ...scalarData,
+          status: "DRAFT",
+          translations: { create: translationsCreate },
+          ingredients: { create: ingredientsCreate },
+          steps: { create: stepsCreate },
+          ...(data.nutrition && { nutrition: { create: data.nutrition } }),
+        },
+      });
+    });
+
+    await db.auditLog.create({
+      data: {
+        userId: user.id,
+        entityType: "Recipe",
+        entityId: recipe.id,
+        action: data.id ? "UPDATE" : "CREATE",
+        after: { slug: recipe.slug },
+      },
+    });
+
+    return { ok: true, data: { id: recipe.id, slug: recipe.slug } };
+  } catch (e) {
+    if (e instanceof Error && e.message === "NOT_FOUND") {
+      return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
+    }
+    return { ok: false, error: { code: "CONFLICT", message: "Kaydedilemedi (slug zaten kullanılıyor olabilir)" } };
+  }
 }

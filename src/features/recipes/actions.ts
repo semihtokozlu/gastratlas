@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { recalculateRecipeSchema, type ActionResult } from "./schemas";
 import { recalculateIngredients, type ScalableIngredient } from "@/domain/recipe/scaling";
@@ -65,4 +66,27 @@ export async function recalculateRecipe(
 
   const result = recalculateIngredients(scalable, recipe.servings, servings, resolvedSubstitutions);
   return { ok: true, data: { ingredients: result } };
+}
+
+/**
+ * PUBLIC — pasif görüntülenme sayacı. Sayfa SSG/ISR olduğu için render
+ * içinde artırılamaz; client tarafta mount olduğunda çağrılır (bkz.
+ * ViewTracker). Yetkilendirme/AuditLog gerektirmez, güvenlik açısından
+ * kritik bir alan değildir.
+ */
+export async function incrementViewCount(recipeId: unknown): Promise<ActionResult<{ viewCount: number }>> {
+  const parsed = z.string().cuid().safeParse(recipeId);
+  if (!parsed.success) {
+    return { ok: false, error: { code: "VALIDATION", message: "Geçersiz ID" } };
+  }
+  try {
+    const recipe = await db.recipe.update({
+      where: { id: parsed.data, status: "PUBLISHED" },
+      data: { viewCount: { increment: 1 } },
+      select: { viewCount: true },
+    });
+    return { ok: true, data: { viewCount: recipe.viewCount } };
+  } catch {
+    return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
+  }
 }
