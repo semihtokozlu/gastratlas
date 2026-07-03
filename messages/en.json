@@ -268,6 +268,27 @@
     "noCollections": "You don't have any collections yet.",
     "loginPrompt": "Log in to add to a collection"
   },
+  "methodologyPage": {
+    "title": "Methodology",
+    "intro": "GastrAtlas is built on two core values: Accuracy and Authenticity. This page explains what a recipe or history text actually goes through before it's published on the site, and what technical and editorial safeguards support that process.",
+    "statsTitle": "Right now",
+    "statRecipes": "published recipes",
+    "statCuisines": "cuisines",
+    "statSources": "catalogued sources",
+    "statReliability": "average source reliability (out of 5)",
+    "workflowTitle": "Editorial workflow",
+    "workflowBody": "Every piece of content is in one of five states: Draft, AI Review, Editor Review, Published, or Archived. Moving content into \"Published\" requires at least Historian-level permission — enforced independently both in application code and at the database level (Postgres row-level security policies). Publishing authority is deliberately kept separate from content-drafting authority. Other transitions (draft, in review, archived) can be made with Editor permission.",
+    "aiTitle": "AI use and transparency",
+    "aiBody": "Because the platform's content base is still in an early stage, first drafts of history and summary text are written with AI assistance. This isn't hidden: any text that hasn't yet completed editorial verification carries an explicit note at the end saying so (\"This text is a draft pending editorial verification\"). AI never publishes content directly — no text can reach \"Published\" status without passing through the approval gate described above. The same transparency principle applies to images: when an AI-generated image is used, it is explicitly labeled as such.",
+    "sourcesTitle": "Sources and reliability rating",
+    "sourcesBody": "Every recipe's history is grounded in the sources listed at the bottom of the page. Each source is given a reliability rating from 1 to 5 by the editorial team (shown with ● and ○ marks), and this rating is never hidden from the reader. For contested or uncertain-origin dishes (for example, recipes that are a shared heritage across multiple cuisines), the text is deliberately written in a cautious, non-definitive tone.",
+    "rolesTitle": "Role separation",
+    "rolesBody": "GastrAtlas has five user roles: Visitor, User, Editor, Historian, and Admin. The purpose of this separation is to avoid concentrating both content-creation authority and the authority to \"approve\" a historical claim in the same person — publishing is only possible with Historian or Admin permission.",
+    "commentsTitle": "Community moderation",
+    "commentsBody": "Reader comments enter a moderation queue when submitted and aren't publicly visible until approved by an Editor or higher — until then, they remain visible only to their author.",
+    "correctionsTitle": "Spotted an error?",
+    "correctionsBody": "There is always room for error in historical accuracy claims. If you notice a mistake, an omission, or a contested point in a recipe or its history, you can let us know via the comments section below that recipe."
+  },
   "mapPage": {
     "title": "Map",
     "subtitle": "Explore recipes at their geographic origin."

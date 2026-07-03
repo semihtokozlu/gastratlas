@@ -268,6 +268,27 @@
     "noCollections": "Henüz koleksiyonunuz yok.",
     "loginPrompt": "Koleksiyona eklemek için giriş yapın"
   },
+  "methodologyPage": {
+    "title": "Metodoloji",
+    "intro": "GastrAtlas'ın iki temel değeri Doğruluk ve Özgünlük'tür. Bu sayfa, bir tarifin veya tarihçe metninin sitede yayınlanmadan önce hangi aşamalardan geçtiğini ve bu süreci hangi teknik ve editoryal güvencelerin desteklediğini açıklar.",
+    "statsTitle": "Şu anda",
+    "statRecipes": "yayında tarif",
+    "statCuisines": "mutfak",
+    "statSources": "kataloglanmış kaynak",
+    "statReliability": "ortalama kaynak güvenilirliği (5 üzerinden)",
+    "workflowTitle": "Editoryal akış",
+    "workflowBody": "Her içerik beş durumdan birinde bulunur: Taslak, AI İncelemesi, Editör İncelemesi, Yayında veya Arşivlendi. Bir içeriğin \"Yayında\" durumuna geçebilmesi için hem uygulama kodunda hem de veritabanı düzeyinde (Postgres satır düzeyi güvenlik politikaları) ayrı ayrı uygulanan bir kural gereği en az Tarihçi (Historian) yetkisi gerekir — içerik oluşturma yetkisiyle yayınlama yetkisi kasıtlı olarak birbirinden ayrılmıştır. Diğer durum geçişleri (taslak, incelemede, arşivlendi) Editör yetkisiyle yapılabilir.",
+    "aiTitle": "Yapay zekâ kullanımı ve şeffaflığı",
+    "aiBody": "Platformun içerik tabanı erken aşamada olduğu için tarihçe ve özet metinlerinin ilk taslakları yapay zekâ yardımıyla yazılmaktadır. Bu, gizlenen bir süreç değildir: editoryal doğrulamayı henüz tamamlamamış metinlerin sonunda bunu açıkça belirten bir not bulunur (\"Bu metin editoryal doğrulama bekleyen bir taslaktır\"). Yapay zekâ hiçbir içeriği doğrudan yayına almaz; yukarıdaki akışta açıklanan onay kapısından geçmeyen hiçbir metin \"Yayında\" durumuna giremez. Görseller için de aynı şeffaflık ilkesi geçerlidir: yapay zekâ ile üretilmiş bir görsel kullanıldığında bu, görselin üzerinde açıkça belirtilir.",
+    "sourcesTitle": "Kaynakça ve güvenilirlik puanlaması",
+    "sourcesBody": "Her tarifin tarihçesi, sayfanın altında listelenen kaynaklara dayanır. Her kaynağa editoryal ekip tarafından 1 ile 5 arasında bir güvenilirlik puanı verilir (● ve ○ işaretleriyle gösterilir) ve bu puan okuyucudan gizlenmez. Tartışmalı ya da kesin kökeni bilinmeyen yemeklerde (örneğin birden fazla mutfağın ortak mirası olan tarifler) metinler kasıtlı olarak temkinli ve iddiasız bir dille yazılır.",
+    "rolesTitle": "Rol ayrımı",
+    "rolesBody": "GastrAtlas'ta beş kullanıcı rolü vardır: Ziyaretçi, Kullanıcı, Editör, Tarihçi ve Yönetici. Bu ayrımın amacı, içerik üretme yetkisiyle bir tarihsel iddiayı \"onaylama\" yetkisini aynı kişide toplamamaktır — yayınlama yalnızca Tarihçi veya Yönetici rolüyle mümkündür.",
+    "commentsTitle": "Topluluk moderasyonu",
+    "commentsBody": "Okuyucu yorumları gönderildiğinde herkese açık şekilde görünmeden önce moderasyon kuyruğuna girer; Editör veya üstü bir rol tarafından onaylanmadan yalnızca yazarına görünür kalır.",
+    "correctionsTitle": "Bir hata mı fark ettiniz?",
+    "correctionsBody": "Tarihsel doğruluk iddialarında hata payı her zaman vardır. Bir tarifte veya tarihçesinde hata, eksik ya da tartışmalı bir nokta fark ederseniz, bunu ilgili tarifin altındaki yorumlar bölümünden bize bildirebilirsiniz."
+  },
   "mapPage": {
     "title": "Harita",
     "subtitle": "Tarifleri coğrafi kökenlerinde keşfedin."
