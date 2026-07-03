@@ -20,6 +20,7 @@ export function Navbar() {
     { href: "/map", label: t("map") },
     { href: "/timeline", label: t("timeline") },
     { href: "/favorites", label: t("favorites") },
+    { href: "/collections", label: t("collections") },
   ] as const;
 
   return (
@@ -30,7 +31,7 @@ export function Navbar() {
         </Link>
 
         {/* Masaüstü: satır içi linkler */}
-        <div className="hidden items-center gap-6 text-sm sm:flex">
+        <div className="hidden items-center gap-5 text-sm lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -55,7 +56,7 @@ export function Navbar() {
         {/* Mobil: hamburger buton */}
         <button
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-line sm:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-md border border-line lg:hidden"
           aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
           aria-expanded={menuOpen}
         >
@@ -75,7 +76,7 @@ export function Navbar() {
 
       {/* Mobil: açılır menü */}
       {menuOpen && (
-        <div className="container flex flex-col gap-4 border-t border-line py-4 text-sm sm:hidden">
+        <div className="container flex flex-col gap-4 border-t border-line py-4 text-sm lg:hidden">
           {links.map((link) => (
             <Link
               key={link.href}
