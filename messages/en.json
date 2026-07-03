@@ -7,13 +7,15 @@
     "heroTitle": "The world's living culinary atlas",
     "heroSubtitle": "Every recipe carries a culture, an era, a geography and a story. Starting with Ottoman palace cuisine, we are mapping the tables of civilizations.",
     "cta": "Start exploring",
-    "statusNote": "Platform in preparation — Phase 0"
+    "statusNote": "Platform in preparation — Phase 1"
   },
   "nav": {
     "recipes": "Recipes",
+    "countries": "Countries",
     "map": "Map",
     "timeline": "Timeline",
-    "about": "About"
+    "about": "About",
+    "switchLocale": "Türkçe"
   },
   "footer": {
     "rights": "All rights reserved."
@@ -52,6 +54,74 @@
       "SLICE": "slice",
       "BUNCH": "bunch"
     },
-    "heroImagePlaceholder": "Image coming soon"
+    "heroImagePlaceholder": "Image coming soon",
+    "original": "Original",
+    "substitute": "Substitute",
+    "altType": {
+      "HISTORICAL": "Historical",
+      "MODERN": "Modern",
+      "VEGAN": "Vegan",
+      "VEGETARIAN": "Vegetarian",
+      "GLUTEN_FREE": "Gluten-free",
+      "LACTOSE_FREE": "Lactose-free",
+      "ECONOMIC": "Economic",
+      "LOCAL": "Local",
+      "SAME_AROMA": "Same Aroma",
+      "SAME_TEXTURE": "Same Texture"
+    }
+  },
+  "recipesPage": {
+    "title": "Recipes",
+    "subtitle": "Recipes from Ottoman cuisine, with historical context.",
+    "filterAll": "All",
+    "filterCountry": "Country",
+    "filterEra": "Era",
+    "filterCategory": "Category",
+    "noResults": "No recipes match these filters."
+  },
+  "countriesPage": {
+    "title": "Countries",
+    "subtitle": "Explore the geographic origins of cuisines.",
+    "recipeCount": "recipes",
+    "recipesInCountry": "Recipes from this country"
+  },
+  "eraPage": {
+    "recipesInEra": "Recipes from this era",
+    "civilization": "Civilization"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "recipesTitle": "Recipes",
+    "forbidden": "You don't have permission to view this page.",
+    "status": {
+      "DRAFT": "Draft",
+      "AI_REVIEW": "AI Review",
+      "EDITOR_REVIEW": "Editor Review",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "publish": "Publish",
+    "saving": "Saving…",
+    "error": "Something went wrong",
+    "statusColumn": "Status",
+    "countryColumn": "Country",
+    "updatedColumn": "Updated"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginSubtitle": "We'll send a sign-in link to your email.",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Send link",
+    "sending": "Sending…",
+    "checkEmail": "Check your inbox — we've sent you a sign-in link.",
+    "error": "Something went wrong, please try again."
+  },
+  "mapPage": {
+    "title": "Map",
+    "subtitle": "Explore recipes at their geographic origin."
+  },
+  "timelinePage": {
+    "title": "Timeline",
+    "subtitle": "A journey through the history of gastronomy."
   }
 }

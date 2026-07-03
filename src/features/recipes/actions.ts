@@ -32,6 +32,7 @@ export async function recalculateRecipe(
 
   const ingredientRows = await db.recipeIngredient.findMany({
     where: { recipeId },
+    orderBy: { sortOrder: "asc" },
     select: { ingredientId: true, quantity: true, unit: true, isOptional: true },
   });
   const knownIngredientIds = new Set(ingredientRows.map((r) => r.ingredientId));

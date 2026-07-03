@@ -2,6 +2,7 @@ import { PrismaClient, type AlternativeType, type Difficulty, type SourceType, t
 import { ottomanSeed as s } from "./data/ottoman";
 import { authorsSeed } from "./data/authors";
 import { recipesSeed } from "./data/recipes";
+import { timelineEventsSeed } from "./data/timeline";
 
 const db = new PrismaClient();
 
@@ -160,6 +161,7 @@ async function main() {
     authorIds.set(a.slug, row.id);
   }
 
+  const recipeIds = new Map<string, string>();
   for (const r of recipesSeed) {
     const recipe = await db.recipe.upsert({
       where: { slug: r.slug },
@@ -174,6 +176,8 @@ async function main() {
         civilizationId: civilization.id,
         categoryId: categoryIds.get(r.categorySlug)!,
         authorId: authorIds.get(r.authorSlug)!,
+        latitude: r.latitude,
+        longitude: r.longitude,
         prepMinutes: r.prepMinutes,
         cookMinutes: r.cookMinutes,
         restMinutes: r.restMinutes,
@@ -232,6 +236,27 @@ async function main() {
       where: { recipeId_sourceId: { recipeId: recipe.id, sourceId: source.id } },
       update: {},
       create: { recipeId: recipe.id, sourceId: source.id, citation: r.source.citation },
+    });
+
+    recipeIds.set(r.slug, recipe.id);
+  }
+
+  for (const ev of timelineEventsSeed) {
+    await db.timelineEvent.upsert({
+      where: { slug: ev.slug },
+      update: {},
+      create: {
+        slug: ev.slug,
+        year: ev.year,
+        eraId: era.slug === ev.eraSlug ? era.id : null,
+        recipeId: ev.recipeSlug ? recipeIds.get(ev.recipeSlug) : null,
+        translations: {
+          create: [
+            { locale: "tr", ...ev.tr },
+            { locale: "en", ...ev.en },
+          ],
+        },
+      },
     });
   }
 

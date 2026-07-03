@@ -61,6 +61,16 @@ export const ottomanSeed = {
     { slug: "dried-apricot", category: "fruit",     tr: "Kuru kayısı",    en: "Dried apricot" },
     { slug: "walnuts",       category: "nut",       tr: "Ceviz",          en: "Walnuts" },
     { slug: "sugar",         category: "sweet",     tr: "Toz şeker",      en: "Granulated sugar" },
+    { slug: "red-lentils",   category: "legume",    tr: "Kırmızı mercimek", en: "Red lentils" },
+    { slug: "onion",         category: "vegetable", tr: "Soğan",          en: "Onion" },
+    { slug: "carrot",        category: "vegetable", tr: "Havuç",          en: "Carrot" },
+    { slug: "cumin",         category: "spice",     tr: "Kimyon",         en: "Cumin" },
+    { slug: "lemon",         category: "fruit",     tr: "Limon",          en: "Lemon" },
+    { slug: "pine-nuts",     category: "nut",       tr: "Çam fıstığı",    en: "Pine nuts" },
+    { slug: "currants",      category: "fruit",     tr: "Kuş üzümü",      en: "Currants" },
+    { slug: "allspice",      category: "spice",     tr: "Yenibahar",      en: "Allspice" },
+    { slug: "dill",          category: "herb",      tr: "Dereotu",        en: "Dill" },
+    { slug: "sour-cherry",   category: "fruit",     tr: "Vişne",          en: "Sour cherry" },
   ],
   alternatives: [
     // Tereyağı → Zeytinyağı: vegan ikame, hacimce ~%75

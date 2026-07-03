@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { routing } from "@/i18n/routing";
-import type { Difficulty, Unit } from "@prisma/client";
+import type { AlternativeType, Difficulty, Unit } from "@prisma/client";
 
 export async function getPublishedRecipeSlugs(): Promise<string[]> {
   const rows = await db.recipe.findMany({
@@ -39,6 +39,7 @@ export type RecipeDetail = {
     groupLabel: string | null;
     isOptional: boolean;
     sortOrder: number;
+    alternatives: { alternativeId: string; name: string; type: AlternativeType; aiExplanation: string | null }[];
   }[];
   steps: {
     id: string;
@@ -70,6 +71,94 @@ function pickTranslation<T extends { locale: string }>(
   );
 }
 
+export type RecipeCardData = {
+  slug: string;
+  title: string;
+  summary: string;
+  countryName: string;
+  eraName: string | null;
+  prepMinutes: number;
+  cookMinutes: number;
+  difficulty: Difficulty;
+};
+
+export type RecipeListFilters = {
+  countrySlug?: string;
+  eraSlug?: string;
+  categorySlug?: string;
+};
+
+export async function getRecipeCards(
+  locale: string,
+  filters: RecipeListFilters = {}
+): Promise<RecipeCardData[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const recipes = await db.recipe.findMany({
+    where: {
+      status: "PUBLISHED",
+      ...(filters.countrySlug && { country: { slug: filters.countrySlug } }),
+      ...(filters.eraSlug && { era: { slug: filters.eraSlug } }),
+      ...(filters.categorySlug && { category: { slug: filters.categorySlug } }),
+    },
+    orderBy: { publishedAt: "desc" },
+    include: {
+      translations: { where: localeFilter },
+      country: { include: { translations: { where: localeFilter } } },
+      era: { include: { translations: { where: localeFilter } } },
+    },
+  });
+
+  return recipes.flatMap((recipe) => {
+    const t = pickTranslation(recipe.translations, locale);
+    if (!t) return [];
+    return [
+      {
+        slug: recipe.slug,
+        title: t.title,
+        summary: t.summary,
+        countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
+        eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,
+        prepMinutes: recipe.prepMinutes,
+        cookMinutes: recipe.cookMinutes,
+        difficulty: recipe.difficulty,
+      },
+    ];
+  });
+}
+
+export type FilterOption = { slug: string; name: string };
+
+export async function getFilterOptions(locale: string): Promise<{
+  countries: FilterOption[];
+  eras: FilterOption[];
+  categories: FilterOption[];
+}> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+  const hasPublishedRecipe = { some: { status: "PUBLISHED" as const } };
+
+  const [countries, eras, categories] = await Promise.all([
+    db.country.findMany({
+      where: { recipes: hasPublishedRecipe },
+      include: { translations: { where: localeFilter } },
+    }),
+    db.era.findMany({
+      where: { recipes: hasPublishedRecipe },
+      include: { translations: { where: localeFilter } },
+    }),
+    db.category.findMany({
+      where: { recipes: hasPublishedRecipe },
+      include: { translations: { where: localeFilter } },
+    }),
+  ]);
+
+  return {
+    countries: countries.map((c) => ({ slug: c.slug, name: pickTranslation(c.translations, locale)?.name ?? c.slug })),
+    eras: eras.map((e) => ({ slug: e.slug, name: pickTranslation(e.translations, locale)?.name ?? e.slug })),
+    categories: categories.map((c) => ({ slug: c.slug, name: pickTranslation(c.translations, locale)?.name ?? c.slug })),
+  };
+}
+
 export async function getRecipeBySlug(slug: string, locale: string): Promise<RecipeDetail | null> {
   const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
 
@@ -84,7 +173,17 @@ export async function getRecipeBySlug(slug: string, locale: string): Promise<Rec
       author: true,
       ingredients: {
         orderBy: { sortOrder: "asc" },
-        include: { ingredient: { include: { translations: { where: localeFilter } } } },
+        include: {
+          ingredient: {
+            include: {
+              translations: { where: localeFilter },
+              alternatives: {
+                where: { isVerified: true },
+                include: { alternative: { include: { translations: { where: localeFilter } } } },
+              },
+            },
+          },
+        },
       },
       steps: {
         orderBy: { sortOrder: "asc" },
@@ -128,6 +227,12 @@ export async function getRecipeBySlug(slug: string, locale: string): Promise<Rec
       groupLabel: i.groupLabel,
       isOptional: i.isOptional,
       sortOrder: i.sortOrder,
+      alternatives: i.ingredient.alternatives.map((alt) => ({
+        alternativeId: alt.alternativeId,
+        name: pickTranslation(alt.alternative.translations, locale)?.name ?? alt.alternative.slug,
+        type: alt.type,
+        aiExplanation: alt.aiExplanation,
+      })),
     })),
     steps: recipe.steps.map((s) => {
       const st = pickTranslation(s.translations, locale);
@@ -156,4 +261,38 @@ export async function getRecipeBySlug(slug: string, locale: string): Promise<Rec
       reliability: rs.source.reliability,
     })),
   };
+}
+
+export type RecipeGeoPoint = {
+  slug: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+  countryName: string;
+};
+
+export async function getRecipeGeoPoints(locale: string): Promise<RecipeGeoPoint[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const recipes = await db.recipe.findMany({
+    where: { status: "PUBLISHED", latitude: { not: null }, longitude: { not: null } },
+    include: {
+      translations: { where: localeFilter },
+      country: { include: { translations: { where: localeFilter } } },
+    },
+  });
+
+  return recipes.flatMap((recipe) => {
+    const t = pickTranslation(recipe.translations, locale);
+    if (!t || recipe.latitude == null || recipe.longitude == null) return [];
+    return [
+      {
+        slug: recipe.slug,
+        title: t.title,
+        latitude: recipe.latitude.toNumber(),
+        longitude: recipe.longitude.toNumber(),
+        countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
+      },
+    ];
+  });
 }

@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 export default async function HomePage({
   params,
@@ -22,12 +23,12 @@ export default async function HomePage({
         {t("heroTitle")}
       </h1>
       <p className="mt-6 max-w-xl text-ink-muted">{t("heroSubtitle")}</p>
-      <a
-        href="#"
+      <Link
+        href="/recipes"
         className="mt-10 rounded-md bg-primary px-8 py-3 text-sm font-medium text-bg transition-colors duration-200 ease-brand hover:bg-primary-dark"
       >
         {t("cta")}
-      </a>
+      </Link>
       <p className="mt-16 text-xs uppercase tracking-widest text-ink-muted">
         {t("statusNote")}
       </p>

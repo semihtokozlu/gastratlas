@@ -23,3 +23,12 @@ begin
   end if;
 end
 $$;
+
+-- auth_user_sync migration'ı "after insert on auth.users" trigger'ı
+-- oluşturuyor; CI'de trigger DDL'inin uygulanabilmesi için minimal bir
+-- stub tablo yeterli (gerçek satır asla eklenmez, build zamanında sadece
+-- yapısal olarak var olması gerekiyor).
+create table if not exists auth.users (
+  id uuid primary key,
+  email text
+);

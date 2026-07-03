@@ -39,6 +39,7 @@ export async function generateMetadata({
       type: "article",
       title: recipe.metaTitle ?? recipe.title,
       description: recipe.metaDesc ?? recipe.summary,
+      images: [`/api/og?type=recipe&slug=${slug}&locale=${locale}`],
     },
   };
 }
@@ -91,6 +92,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         baseServings={recipe.servings}
         locale={locale}
         initialIngredients={recipe.ingredients.map((i) => ({
+          id: i.id,
           ingredientId: i.ingredientId,
           name: i.name,
           quantity: i.quantity,
@@ -98,6 +100,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
           note: i.note,
           groupLabel: i.groupLabel,
           isOptional: i.isOptional,
+          alternatives: i.alternatives,
         }))}
       />
       <StepList steps={recipe.steps} />

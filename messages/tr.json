@@ -7,13 +7,15 @@
     "heroTitle": "Dünyanın yaşayan gastronomi atlası",
     "heroSubtitle": "Her tarif bir kültürü, bir dönemi, bir coğrafyayı ve bir hikâyeyi taşır. Osmanlı saray mutfağından başlayarak medeniyetlerin sofralarını haritalıyoruz.",
     "cta": "Keşfetmeye başla",
-    "statusNote": "Platform hazırlanıyor — Faz 0"
+    "statusNote": "Platform hazırlanıyor — Faz 1"
   },
   "nav": {
     "recipes": "Tarifler",
+    "countries": "Ülkeler",
     "map": "Harita",
     "timeline": "Zaman Çizelgesi",
-    "about": "Hakkında"
+    "about": "Hakkında",
+    "switchLocale": "English"
   },
   "footer": {
     "rights": "Tüm hakları saklıdır."
@@ -52,6 +54,74 @@
       "SLICE": "dilim",
       "BUNCH": "demet"
     },
-    "heroImagePlaceholder": "Görsel yakında eklenecek"
+    "heroImagePlaceholder": "Görsel yakında eklenecek",
+    "original": "Orijinal",
+    "substitute": "Alternatif",
+    "altType": {
+      "HISTORICAL": "Tarihsel",
+      "MODERN": "Modern",
+      "VEGAN": "Vegan",
+      "VEGETARIAN": "Vejetaryen",
+      "GLUTEN_FREE": "Glutensiz",
+      "LACTOSE_FREE": "Laktozsuz",
+      "ECONOMIC": "Ekonomik",
+      "LOCAL": "Yerel",
+      "SAME_AROMA": "Aynı Aroma",
+      "SAME_TEXTURE": "Aynı Doku"
+    }
+  },
+  "recipesPage": {
+    "title": "Tarifler",
+    "subtitle": "Osmanlı mutfağından, tarihsel bağlamıyla birlikte tarifler.",
+    "filterAll": "Tümü",
+    "filterCountry": "Ülke",
+    "filterEra": "Dönem",
+    "filterCategory": "Kategori",
+    "noResults": "Bu filtrelerle eşleşen tarif bulunamadı."
+  },
+  "countriesPage": {
+    "title": "Ülkeler",
+    "subtitle": "Mutfakların coğrafi kökenini keşfedin.",
+    "recipeCount": "tarif",
+    "recipesInCountry": "Bu ülkeden tarifler"
+  },
+  "eraPage": {
+    "recipesInEra": "Bu dönemden tarifler",
+    "civilization": "Medeniyet"
+  },
+  "admin": {
+    "title": "Yönetim Paneli",
+    "recipesTitle": "Tarifler",
+    "forbidden": "Bu sayfayı görüntüleme yetkiniz yok.",
+    "status": {
+      "DRAFT": "Taslak",
+      "AI_REVIEW": "AI İncelemesi",
+      "EDITOR_REVIEW": "Editör İncelemesi",
+      "PUBLISHED": "Yayında",
+      "ARCHIVED": "Arşivlendi"
+    },
+    "publish": "Yayınla",
+    "saving": "Kaydediliyor…",
+    "error": "Hata oluştu",
+    "statusColumn": "Durum",
+    "countryColumn": "Ülke",
+    "updatedColumn": "Güncellenme"
+  },
+  "auth": {
+    "loginTitle": "Giriş yap",
+    "loginSubtitle": "E-posta adresinize bir giriş bağlantısı gönderelim.",
+    "emailPlaceholder": "eposta@ornek.com",
+    "sendLink": "Bağlantı gönder",
+    "sending": "Gönderiliyor…",
+    "checkEmail": "Gelen kutunuzu kontrol edin — giriş bağlantısını gönderdik.",
+    "error": "Bir şeyler ters gitti, tekrar deneyin."
+  },
+  "mapPage": {
+    "title": "Harita",
+    "subtitle": "Tarifleri coğrafi kökenlerinde keşfedin."
+  },
+  "timelinePage": {
+    "title": "Zaman Çizelgesi",
+    "subtitle": "Gastronomi tarihinde bir yolculuk."
   }
 }
