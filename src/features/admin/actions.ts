@@ -3,7 +3,8 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/auth/guards";
-import { recipeInputSchema } from "./schemas";
+import { recipeInputSchema, setHeroImageSchema } from "./schemas";
+import { fetchAndUploadImage } from "@/lib/storage/upload";
 import type { ActionResult } from "@/features/recipes/schemas";
 import type { ContentStatus, Unit } from "@prisma/client";
 
@@ -240,4 +241,55 @@ export async function upsertRecipe(input: unknown): Promise<ActionResult<{ id: s
     }
     return { ok: false, error: { code: "CONFLICT", message: "Kaydedilemedi (slug zaten kullanılıyor olabilir)" } };
   }
+}
+
+/**
+ * Bir kaynak URL'den görseli indirip Supabase Storage'a yükler, Image kaydı
+ * oluşturur ve tarifin heroImage'ını buna çevirir. isAiGenerated=false
+ * (varsayılan) küratörlü/lisanslı görseller için; ileride AI görsel üretimi
+ * bağlandığında aynı action true ile de çağrılabilir.
+ */
+export async function setRecipeHeroImageFromUrl(input: unknown): Promise<ActionResult<{ imageId: string }>> {
+  const parsed = setHeroImageSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: { code: "VALIDATION", message: "Geçersiz girdi" } };
+  }
+
+  let user;
+  try {
+    user = await requireRole("EDITOR");
+  } catch (e) {
+    if (e instanceof AuthError) return authErrorResult(e);
+    throw e;
+  }
+
+  const { recipeId, imageUrl, alt, credit, isAiGenerated } = parsed.data;
+  const recipe = await db.recipe.findUnique({ where: { id: recipeId } });
+  if (!recipe) return { ok: false, error: { code: "NOT_FOUND", message: "Tarif bulunamadı" } };
+
+  const ext = imageUrl.split(".").pop()?.split("?")[0]?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${recipe.slug}-${Date.now()}.${ext}`;
+
+  let storagePath: string;
+  try {
+    const uploaded = await fetchAndUploadImage(imageUrl, path);
+    storagePath = uploaded.storagePath;
+  } catch (e) {
+    return { ok: false, error: { code: "UPLOAD_FAILED", message: e instanceof Error ? e.message : "Yükleme başarısız" } };
+  }
+
+  const image = await db.image.create({ data: { storagePath, alt, credit, isAiGenerated } });
+  await db.recipe.update({ where: { id: recipeId }, data: { heroImageId: image.id } });
+
+  await db.auditLog.create({
+    data: {
+      userId: user.id,
+      entityType: "Recipe",
+      entityId: recipeId,
+      action: "UPDATE",
+      after: { heroImageId: image.id, isAiGenerated },
+    },
+  });
+
+  return { ok: true, data: { imageId: image.id } };
 }

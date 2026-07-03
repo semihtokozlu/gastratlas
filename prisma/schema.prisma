@@ -628,17 +628,20 @@ model Gallery {
 }
 
 model Image {
-  id          String   @id @default(cuid())
-  galleryId   String?
+  id            String   @id @default(cuid())
+  galleryId     String?
   /// Supabase Storage yolu (bucket/klasör/dosya)
-  storagePath String
-  alt         String
-  width       Int?
-  height      Int?
-  blurDataUrl String?
-  credit      String?
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
+  storagePath   String
+  alt           String
+  width         Int?
+  height        Int?
+  blurDataUrl   String?
+  /// Atıf/lisans metni (ör. "Photo by X / Wikimedia Commons, CC BY-SA 4.0")
+  credit        String?
+  /// AI ile üretildiyse true — AIDisclosureBadge bu alana bakar (§K5, marka şeffaflığı)
+  isAiGenerated Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
 
   gallery Gallery? @relation(fields: [galleryId], references: [id], onDelete: SetNull)
   heroOf  Recipe?  @relation("RecipeHero")

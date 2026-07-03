@@ -61,3 +61,11 @@ export const recipeInputSchema = z.object({
 });
 
 export type RecipeInput = z.infer<typeof recipeInputSchema>;
+
+export const setHeroImageSchema = z.object({
+  recipeId: z.string().cuid(),
+  imageUrl: z.string().url(),
+  alt: z.string().min(1).max(200),
+  credit: z.string().max(300).optional(),
+  isAiGenerated: z.boolean().default(false),
+});

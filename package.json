@@ -20,6 +20,7 @@
     "seed": "tsx prisma/seed/index.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "@prisma/client": "^6.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.47.0",

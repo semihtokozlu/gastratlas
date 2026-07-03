@@ -11,6 +11,13 @@ export async function getPublishedRecipeSlugs(): Promise<string[]> {
   return rows.map((r) => r.slug);
 }
 
+export type HeroImage = {
+  storagePath: string;
+  alt: string;
+  credit: string | null;
+  isAiGenerated: boolean;
+};
+
 export type RecipeDetail = {
   id: string;
   slug: string;
@@ -25,6 +32,7 @@ export type RecipeDetail = {
   servings: number;
   difficulty: Difficulty;
   publishedAt: Date | null;
+  heroImage: HeroImage | null;
   countryName: string;
   cityName: string | null;
   eraName: string | null;
@@ -81,6 +89,7 @@ export type RecipeCardData = {
   prepMinutes: number;
   cookMinutes: number;
   difficulty: Difficulty;
+  heroImage: HeroImage | null;
 };
 
 export type RecipeListFilters = {
@@ -107,6 +116,7 @@ export async function getRecipeCards(
       translations: { where: localeFilter },
       country: { include: { translations: { where: localeFilter } } },
       era: { include: { translations: { where: localeFilter } } },
+      heroImage: true,
     },
   });
 
@@ -123,6 +133,14 @@ export async function getRecipeCards(
         prepMinutes: recipe.prepMinutes,
         cookMinutes: recipe.cookMinutes,
         difficulty: recipe.difficulty,
+        heroImage: recipe.heroImage
+          ? {
+              storagePath: recipe.heroImage.storagePath,
+              alt: recipe.heroImage.alt,
+              credit: recipe.heroImage.credit,
+              isAiGenerated: recipe.heroImage.isAiGenerated,
+            }
+          : null,
       },
     ];
   });
@@ -178,6 +196,7 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
       era: { include: { translations: { where: localeFilter } } },
       cuisine: { include: { translations: { where: localeFilter } } },
       author: true,
+      heroImage: true,
       ingredients: {
         orderBy: { sortOrder: "asc" },
         include: {
@@ -219,6 +238,14 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
     servings: recipe.servings,
     difficulty: recipe.difficulty,
     publishedAt: recipe.publishedAt,
+    heroImage: recipe.heroImage
+      ? {
+          storagePath: recipe.heroImage.storagePath,
+          alt: recipe.heroImage.alt,
+          credit: recipe.heroImage.credit,
+          isAiGenerated: recipe.heroImage.isAiGenerated,
+        }
+      : null,
     countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
     cityName: recipe.city ? (pickTranslation(recipe.city.translations, locale)?.name ?? recipe.city.slug) : null,
     eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,

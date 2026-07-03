@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublishedRecipeSlugs, getRecipeBySlug } from "@/features/recipes/queries";
 import { buildRecipeJsonLd } from "@/lib/seo/jsonld";
+import { getPublicImageUrl } from "@/lib/storage/upload";
 import { routing } from "@/i18n/routing";
 import { RecipeHero } from "@/components/recipe/RecipeHero";
 import { ViewTracker } from "@/components/recipe/ViewTracker";
@@ -41,7 +42,9 @@ export async function generateMetadata({
       type: "article",
       title: recipe.metaTitle ?? recipe.title,
       description: recipe.metaDesc ?? recipe.summary,
-      images: [`/api/og?type=recipe&slug=${slug}&locale=${locale}`],
+      images: recipe.heroImage
+        ? [getPublicImageUrl(recipe.heroImage.storagePath)]
+        : [`/api/og?type=recipe&slug=${slug}&locale=${locale}`],
     },
   };
 }
@@ -59,7 +62,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
   const jsonLd = buildRecipeJsonLd({
     name: recipe.title,
     description: recipe.summary,
-    imageUrls: [],
+    imageUrls: recipe.heroImage ? [getPublicImageUrl(recipe.heroImage.storagePath)] : [],
     authorName: recipe.authorName,
     datePublished: recipe.publishedAt?.toISOString(),
     prepMinutes: recipe.prepMinutes,
@@ -82,6 +85,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         summary={recipe.summary}
         countryName={recipe.countryName}
         eraName={recipe.eraName}
+        heroImage={recipe.heroImage}
       />
       <MetaBar
         prepMinutes={recipe.prepMinutes}
