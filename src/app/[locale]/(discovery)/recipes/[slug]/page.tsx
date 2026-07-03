@@ -15,6 +15,7 @@ import { HistorySection } from "@/components/recipe/HistorySection";
 import { SourceList } from "@/components/recipe/SourceList";
 import { CommentSection } from "@/components/recipe/CommentSection";
 import { ShareBar } from "@/components/recipe/ShareBar";
+import { FavoriteButton } from "@/components/recipe/FavoriteButton";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 export const revalidate = 3600;
@@ -99,7 +100,10 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         eraName={recipe.eraName}
         heroImage={recipe.heroImage}
       />
-      <ShareBar title={recipe.title} url={pageUrl} />
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <ShareBar title={recipe.title} url={pageUrl} />
+        <FavoriteButton recipeId={recipe.id} />
+      </div>
       <MetaBar
         prepMinutes={recipe.prepMinutes}
         cookMinutes={recipe.cookMinutes}

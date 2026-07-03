@@ -15,6 +15,7 @@
     "countries": "Countries",
     "map": "Map",
     "timeline": "Timeline",
+    "favorites": "Favorites",
     "about": "About",
     "switchLocale": "Türkçe",
     "darkMode": "Dark Mode",
@@ -74,6 +75,8 @@
     "share": "Share",
     "copyLink": "Copy link",
     "linkCopied": "Copied",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
     "nutritionTitle": "Nutrition (per serving)",
     "calories": "Calories",
     "protein": "Protein",
@@ -216,6 +219,12 @@
     "sending": "Sending…",
     "checkEmail": "Check your inbox — we've sent you a sign-in link.",
     "error": "Something went wrong, please try again."
+  },
+  "favoritesPage": {
+    "title": "My Favorites",
+    "subtitle": "Recipes you've added to your favorites.",
+    "empty": "You haven't favorited any recipes yet.",
+    "browseRecipes": "Browse recipes"
   },
   "mapPage": {
     "title": "Map",

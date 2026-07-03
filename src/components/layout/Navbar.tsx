@@ -19,6 +19,7 @@ export function Navbar() {
     { href: "/countries", label: t("countries") },
     { href: "/map", label: t("map") },
     { href: "/timeline", label: t("timeline") },
+    { href: "/favorites", label: t("favorites") },
   ] as const;
 
   return (

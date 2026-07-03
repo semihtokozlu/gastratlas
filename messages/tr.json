@@ -15,6 +15,7 @@
     "countries": "Ülkeler",
     "map": "Harita",
     "timeline": "Zaman Çizelgesi",
+    "favorites": "Favorilerim",
     "about": "Hakkında",
     "switchLocale": "English",
     "darkMode": "Koyu Mod",
@@ -74,6 +75,8 @@
     "share": "Paylaş",
     "copyLink": "Bağlantıyı kopyala",
     "linkCopied": "Kopyalandı",
+    "addToFavorites": "Favorilere ekle",
+    "removeFromFavorites": "Favorilerden çıkar",
     "nutritionTitle": "Besin Değerleri (porsiyon başına)",
     "calories": "Kalori",
     "protein": "Protein",
@@ -216,6 +219,12 @@
     "sending": "Gönderiliyor…",
     "checkEmail": "Gelen kutunuzu kontrol edin — giriş bağlantısını gönderdik.",
     "error": "Bir şeyler ters gitti, tekrar deneyin."
+  },
+  "favoritesPage": {
+    "title": "Favorilerim",
+    "subtitle": "Favorilerinize eklediğiniz tarifler.",
+    "empty": "Henüz favori tarifiniz yok.",
+    "browseRecipes": "Tarifleri keşfedin"
   },
   "mapPage": {
     "title": "Harita",

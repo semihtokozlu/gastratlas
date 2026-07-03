@@ -21,7 +21,7 @@ export function ShareBar({ title, url }: { title: string; url: string }) {
   const encodedTitle = encodeURIComponent(title);
 
   return (
-    <div className="mb-8 flex items-center gap-3 text-xs uppercase tracking-wide text-ink-muted">
+    <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-ink-muted">
       <span>{t("share")}:</span>
       <a
         href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
