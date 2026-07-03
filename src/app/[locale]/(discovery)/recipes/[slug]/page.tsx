@@ -18,6 +18,7 @@ import { ShareBar } from "@/components/recipe/ShareBar";
 import { FavoriteButton } from "@/components/recipe/FavoriteButton";
 import { AddToCollectionButton } from "@/components/recipe/AddToCollectionButton";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { RelatedRecipes } from "@/components/recipe/RelatedRecipes";
 
 export const revalidate = 3600;
 
@@ -135,6 +136,12 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
       <NutritionTable nutrition={recipe.nutrition} />
       <HistorySection history={recipe.history} />
       <SourceList sources={recipe.sources} />
+      <RelatedRecipes
+        recipeId={recipe.id}
+        countrySlug={recipe.countrySlug}
+        eraSlug={recipe.eraSlug}
+        locale={locale}
+      />
       <CommentSection recipeId={recipe.id} />
     </main>
   );

@@ -5,6 +5,7 @@ import { getEraBySlug, getPublishedEraSlugs, formatYear } from "@/features/eras/
 import { getRecipeCards } from "@/features/recipes/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { routing } from "@/i18n/routing";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 export const revalidate = 3600;
 
@@ -34,6 +35,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
   if (!era) notFound();
 
   const t = await getTranslations("eraPage");
+  const tNav = await getTranslations({ locale, namespace: "nav" });
   const recipes = await getRecipeCards(locale, { eraSlug: slug });
   const yearRange = era.endYear
     ? `${formatYear(era.startYear, locale)} – ${formatYear(era.endYear, locale)}`
@@ -41,6 +43,13 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
 
   return (
     <main className="container py-12">
+      <Breadcrumb
+        items={[
+          { label: tNav("home"), href: "/" },
+          { label: tNav("timeline"), href: "/timeline" },
+          { label: era.name },
+        ]}
+      />
       <p className="mb-3 text-xs uppercase tracking-[0.2em] text-accent">{yearRange}</p>
       <h1 className="font-serif text-ink" style={{ fontSize: "var(--text-h1)" }}>
         {era.name}

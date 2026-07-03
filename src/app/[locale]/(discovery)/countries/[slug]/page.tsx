@@ -5,6 +5,7 @@ import { getCountryBySlug, getPublishedCountrySlugs } from "@/features/countries
 import { getRecipeCards } from "@/features/recipes/queries";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { routing } from "@/i18n/routing";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 export const revalidate = 3600;
 
@@ -34,10 +35,18 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
   if (!country) notFound();
 
   const t = await getTranslations("countriesPage");
+  const tNav = await getTranslations({ locale, namespace: "nav" });
   const recipes = await getRecipeCards(locale, { countrySlug: slug });
 
   return (
     <main className="container py-12">
+      <Breadcrumb
+        items={[
+          { label: tNav("home"), href: "/" },
+          { label: tNav("countries"), href: "/countries" },
+          { label: country.name },
+        ]}
+      />
       <h1 className="font-serif text-ink" style={{ fontSize: "var(--text-h1)" }}>
         {country.name}
       </h1>

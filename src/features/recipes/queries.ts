@@ -37,6 +37,7 @@ export type RecipeDetail = {
   countrySlug: string;
   cityName: string | null;
   eraName: string | null;
+  eraSlug: string | null;
   cuisineName: string;
   authorName: string;
   ingredients: {
@@ -122,6 +123,71 @@ export async function getRecipeCards(
   });
 
   return recipes.flatMap((recipe) => {
+    const t = pickTranslation(recipe.translations, locale);
+    if (!t) return [];
+    return [
+      {
+        slug: recipe.slug,
+        title: t.title,
+        summary: t.summary,
+        countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
+        eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,
+        prepMinutes: recipe.prepMinutes,
+        cookMinutes: recipe.cookMinutes,
+        difficulty: recipe.difficulty,
+        heroImage: recipe.heroImage
+          ? {
+              storagePath: recipe.heroImage.storagePath,
+              alt: recipe.heroImage.alt,
+              credit: recipe.heroImage.credit,
+              isAiGenerated: recipe.heroImage.isAiGenerated,
+            }
+          : null,
+      },
+    ];
+  });
+}
+
+/**
+ * Aynı dönemi paylaşan ama FARKLI ülkeden tarifler en üstte gösterilir —
+ * bunlar mutfaklar arası kültürel bağlantıyı (ör. Yunan dolmades ↔ Osmanlı
+ * klasik dönemi) somutlaştıran, en ilginç eşleşmelerdir. Aksi halde çok
+ * sayıda aynı-ülke/aynı-dönem tarif arasında bu bağlantı kayboluyordu.
+ */
+export async function getRelatedRecipes(
+  recipeId: string,
+  countrySlug: string,
+  eraSlug: string | null,
+  locale: string,
+  limit = 3
+): Promise<RecipeCardData[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const recipes = await db.recipe.findMany({
+    where: {
+      status: "PUBLISHED",
+      id: { not: recipeId },
+      OR: [{ country: { slug: countrySlug } }, ...(eraSlug ? [{ era: { slug: eraSlug } }] : [])],
+    },
+    include: {
+      translations: { where: localeFilter },
+      country: { include: { translations: { where: localeFilter } } },
+      era: { include: { translations: { where: localeFilter } } },
+      heroImage: true,
+    },
+  });
+
+  function matchScore(recipe: (typeof recipes)[number]): number {
+    const eraMatch = eraSlug !== null && recipe.era?.slug === eraSlug;
+    const countryMatch = recipe.country.slug === countrySlug;
+    if (eraMatch && !countryMatch) return 3;
+    if (eraMatch && countryMatch) return 2;
+    return 1;
+  }
+
+  const sorted = recipes.sort((a, b) => matchScore(b) - matchScore(a));
+
+  return sorted.slice(0, limit).flatMap((recipe) => {
     const t = pickTranslation(recipe.translations, locale);
     if (!t) return [];
     return [
@@ -251,6 +317,7 @@ export const getRecipeBySlug = cache(async (slug: string, locale: string): Promi
     countrySlug: recipe.country.slug,
     cityName: recipe.city ? (pickTranslation(recipe.city.translations, locale)?.name ?? recipe.city.slug) : null,
     eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,
+    eraSlug: recipe.era?.slug ?? null,
     cuisineName: pickTranslation(recipe.cuisine.translations, locale)?.name ?? recipe.cuisine.slug,
     authorName: recipe.author.name,
     ingredients: recipe.ingredients.map((i) => ({

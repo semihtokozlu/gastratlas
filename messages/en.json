@@ -7,7 +7,10 @@
     "heroTitle": "The world's living culinary atlas",
     "heroSubtitle": "Every recipe carries a culture, an era, a geography and a story. Starting with Ottoman palace cuisine, we are mapping the tables of civilizations.",
     "cta": "Start exploring",
-    "statusNote": "Platform in preparation — Phase 1"
+    "methodologyLink": "How we work",
+    "featuredTitle": "Recently added",
+    "viewAllRecipes": "View all recipes",
+    "cuisinesTitle": "Cuisines"
   },
   "nav": {
     "home": "Home",
@@ -57,6 +60,7 @@
     "step": "Step {number}",
     "historyTitle": "History",
     "sourcesTitle": "Sources",
+    "relatedTitle": "Related recipes",
     "optional": "optional",
     "units": {
       "G": "g",
@@ -288,6 +292,11 @@
     "commentsBody": "Reader comments enter a moderation queue when submitted and aren't publicly visible until approved by an Editor or higher — until then, they remain visible only to their author.",
     "correctionsTitle": "Spotted an error?",
     "correctionsBody": "There is always room for error in historical accuracy claims. If you notice a mistake, an omission, or a contested point in a recipe or its history, you can let us know via the comments section below that recipe."
+  },
+  "notFoundPage": {
+    "title": "This page couldn't be found",
+    "subtitle": "The page you're looking for may have been removed, moved, or never existed.",
+    "backHome": "Back to homepage"
   },
   "mapPage": {
     "title": "Map",
