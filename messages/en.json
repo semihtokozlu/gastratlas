@@ -96,6 +96,18 @@
     "recipesInEra": "Recipes from this era",
     "civilization": "Civilization"
   },
+  "comments": {
+    "title": "Comments",
+    "placeholder": "Share your thoughts on this recipe…",
+    "submit": "Post",
+    "submitting": "Posting…",
+    "loginPrompt": "To leave a comment,",
+    "loginLink": "log in",
+    "pending": "pending approval",
+    "empty": "No comments yet. Be the first to comment.",
+    "error": "Couldn't post your comment, please try again.",
+    "loading": "Loading…"
+  },
   "admin": {
     "title": "Admin Panel",
     "recipesTitle": "Recipes",
@@ -113,6 +125,19 @@
     "statusColumn": "Status",
     "countryColumn": "Country",
     "updatedColumn": "Updated",
+    "commentsTitle": "Comment Moderation",
+    "commentsNav": "Comments",
+    "recipesNav": "Recipes",
+    "commentStatus": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "HIDDEN": "Hidden"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "hide": "Hide",
+    "noComments": "No comments awaiting moderation.",
     "newRecipe": "New Recipe",
     "editRecipe": "Edit Recipe",
     "actionsColumn": "Actions",

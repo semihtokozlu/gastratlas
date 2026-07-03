@@ -206,3 +206,37 @@ export async function getAdminRecipeDetail(id: string): Promise<AdminRecipeDetai
       : null,
   };
 }
+
+export type AdminCommentRow = {
+  id: string;
+  content: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "HIDDEN";
+  createdAt: Date;
+  userName: string;
+  recipeSlug: string;
+  recipeTitle: string;
+};
+
+/** Moderasyon kuyruğu — varsayılan olarak PENDING, ama tüm statüler de görüntülenebilir. */
+export async function getAdminCommentList(locale: string, statusFilter?: string): Promise<AdminCommentRow[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const comments = await db.comment.findMany({
+    where: statusFilter ? { status: statusFilter as "PENDING" | "APPROVED" | "REJECTED" | "HIDDEN" } : undefined,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: { select: { displayName: true, email: true } },
+      recipe: { select: { slug: true, translations: { where: localeFilter } } },
+    },
+  });
+
+  return comments.map((c) => ({
+    id: c.id,
+    content: c.content,
+    status: c.status,
+    createdAt: c.createdAt,
+    userName: c.user.displayName ?? c.user.email,
+    recipeSlug: c.recipe.slug,
+    recipeTitle: pickTranslation(c.recipe.translations, locale)?.title ?? c.recipe.slug,
+  }));
+}

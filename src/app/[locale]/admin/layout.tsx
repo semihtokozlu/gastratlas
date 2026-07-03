@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireRole, AuthError } from "@/lib/auth/guards";
+import { Link } from "@/i18n/navigation";
 
 export default async function AdminLayout({
   children,
@@ -28,9 +29,21 @@ export default async function AdminLayout({
     throw e;
   }
 
+  const t = await getTranslations({ locale, namespace: "admin" });
+
   return (
     <div className="border-t border-line bg-surface/40">
-      <div className="container py-10">{children}</div>
+      <div className="container py-10">
+        <nav className="mb-8 flex gap-6 border-b border-line pb-4 text-sm">
+          <Link href="/admin/recipes" className="text-ink-muted hover:text-ink">
+            {t("recipesNav")}
+          </Link>
+          <Link href="/admin/comments" className="text-ink-muted hover:text-ink">
+            {t("commentsNav")}
+          </Link>
+        </nav>
+        {children}
+      </div>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { StepList } from "@/components/recipe/StepList";
 import { NutritionTable } from "@/components/recipe/NutritionTable";
 import { HistorySection } from "@/components/recipe/HistorySection";
 import { SourceList } from "@/components/recipe/SourceList";
+import { CommentSection } from "@/components/recipe/CommentSection";
 
 export const revalidate = 3600;
 
@@ -114,6 +115,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
       <NutritionTable nutrition={recipe.nutrition} />
       <HistorySection history={recipe.history} />
       <SourceList sources={recipe.sources} />
+      <CommentSection recipeId={recipe.id} />
     </main>
   );
 }

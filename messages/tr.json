@@ -96,6 +96,18 @@
     "recipesInEra": "Bu dönemden tarifler",
     "civilization": "Medeniyet"
   },
+  "comments": {
+    "title": "Yorumlar",
+    "placeholder": "Bu tarif hakkında düşüncelerinizi paylaşın…",
+    "submit": "Gönder",
+    "submitting": "Gönderiliyor…",
+    "loginPrompt": "Yorum yapmak için",
+    "loginLink": "giriş yapın",
+    "pending": "onay bekliyor",
+    "empty": "Henüz yorum yok. İlk yorumu siz yapın.",
+    "error": "Yorum gönderilemedi, tekrar deneyin.",
+    "loading": "Yükleniyor…"
+  },
   "admin": {
     "title": "Yönetim Paneli",
     "recipesTitle": "Tarifler",
@@ -113,6 +125,19 @@
     "statusColumn": "Durum",
     "countryColumn": "Ülke",
     "updatedColumn": "Güncellenme",
+    "commentsTitle": "Yorum Moderasyonu",
+    "commentsNav": "Yorumlar",
+    "recipesNav": "Tarifler",
+    "commentStatus": {
+      "PENDING": "Beklemede",
+      "APPROVED": "Onaylandı",
+      "REJECTED": "Reddedildi",
+      "HIDDEN": "Gizlendi"
+    },
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "hide": "Gizle",
+    "noComments": "Moderasyon bekleyen yorum yok.",
     "newRecipe": "Yeni Tarif",
     "editRecipe": "Tarifi Düzenle",
     "actionsColumn": "İşlemler",

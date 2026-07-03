@@ -293,3 +293,45 @@ export async function setRecipeHeroImageFromUrl(input: unknown): Promise<ActionR
 
   return { ok: true, data: { imageId: image.id } };
 }
+
+const moderateCommentSchema = z.object({
+  commentId: z.string().cuid(),
+  status: z.enum(["APPROVED", "REJECTED", "HIDDEN"]),
+});
+
+/** Yorum moderasyonu — EDITOR+ (RLS "Comment_owner_or_editor_update" ile aynı kural). */
+export async function moderateComment(input: unknown): Promise<ActionResult<{ status: string }>> {
+  const parsed = moderateCommentSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: { code: "VALIDATION", message: "Geçersiz girdi" } };
+  }
+
+  let user;
+  try {
+    user = await requireRole("EDITOR");
+  } catch (e) {
+    if (e instanceof AuthError) return authErrorResult(e);
+    throw e;
+  }
+
+  const before = await db.comment.findUnique({ where: { id: parsed.data.commentId }, select: { status: true } });
+  if (!before) return { ok: false, error: { code: "NOT_FOUND", message: "Yorum bulunamadı" } };
+
+  const comment = await db.comment.update({
+    where: { id: parsed.data.commentId },
+    data: { status: parsed.data.status },
+  });
+
+  await db.auditLog.create({
+    data: {
+      userId: user.id,
+      entityType: "Comment",
+      entityId: comment.id,
+      action: "UPDATE",
+      before: { status: before.status },
+      after: { status: comment.status },
+    },
+  });
+
+  return { ok: true, data: { status: comment.status } };
+}
