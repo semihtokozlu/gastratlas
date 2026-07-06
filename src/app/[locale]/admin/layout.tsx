@@ -41,6 +41,9 @@ export default async function AdminLayout({
           <Link href="/admin/comments" className="text-ink-muted hover:text-ink">
             {t("commentsNav")}
           </Link>
+          <Link href="/admin/recipes/ai-draft" className="text-ink-muted hover:text-ink">
+            {t("aiDraftNav")}
+          </Link>
         </nav>
         {children}
       </div>
