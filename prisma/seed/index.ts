@@ -1,6 +1,7 @@
 import { PrismaClient, type AlternativeType, type Difficulty, type SourceType, type Unit } from "@prisma/client";
 import { ottomanSeed } from "./data/ottoman";
 import { greekSeed } from "./data/greek";
+import { persianSeed } from "./data/persian";
 import { authorsSeed } from "./data/authors";
 import { recipesSeed } from "./data/recipes";
 import { greekRecipesSeed } from "./data/greek-recipes";
@@ -201,6 +202,7 @@ async function main() {
 
   const ottomanDefaults = await processTaxonomy(ottomanSeed);
   const greekDefaults = await processTaxonomy(greekSeed);
+  await processTaxonomy(persianSeed);
 
   for (const a of authorsSeed) {
     const row = await db.author.upsert({
