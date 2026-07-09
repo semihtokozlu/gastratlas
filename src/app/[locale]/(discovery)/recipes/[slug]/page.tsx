@@ -19,6 +19,7 @@ import { FavoriteButton } from "@/components/recipe/FavoriteButton";
 import { AddToCollectionButton } from "@/components/recipe/AddToCollectionButton";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { RelatedRecipes } from "@/components/recipe/RelatedRecipes";
+import { ChefAssistant } from "@/components/recipe/ChefAssistant";
 
 export const revalidate = 3600;
 
@@ -134,6 +135,7 @@ export default async function RecipePage({ params }: { params: Promise<Params> }
         }))}
       />
       <StepList steps={recipe.steps} />
+      <ChefAssistant recipeId={recipe.id} />
       <NutritionTable nutrition={recipe.nutrition} />
       <HistorySection history={recipe.history} />
       <SourceList sources={recipe.sources} />

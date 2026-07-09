@@ -283,6 +283,16 @@
     "public": "Herkese açık",
     "private": "Özel"
   },
+  "chefAssistant": {
+    "title": "Şef Asistanına Sor",
+    "hint": "Örn. \"Tereyağını neyle değiştirebilirim?\" ya da \"Bu tarifi glutensiz yapabilir miyim?\"",
+    "placeholder": "Bu tarif hakkında bir soru sorun…",
+    "send": "Gönder",
+    "sending": "Düşünüyor…",
+    "loginPrompt": "Şef asistanına sormak için",
+    "loginLink": "giriş yapın",
+    "error": "Şef asistanı şu anda cevap veremedi, tekrar deneyin."
+  },
   "collectionPicker": {
     "addToCollection": "Koleksiyona ekle",
     "newCollection": "Yeni koleksiyon",

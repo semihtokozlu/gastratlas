@@ -283,6 +283,16 @@
     "public": "Public",
     "private": "Private"
   },
+  "chefAssistant": {
+    "title": "Ask the Chef Assistant",
+    "hint": "E.g. \"What can I substitute for butter?\" or \"Can I make this gluten-free?\"",
+    "placeholder": "Ask a question about this recipe…",
+    "send": "Send",
+    "sending": "Thinking…",
+    "loginPrompt": "To ask the chef assistant,",
+    "loginLink": "log in",
+    "error": "The chef assistant couldn't answer right now, please try again."
+  },
   "collectionPicker": {
     "addToCollection": "Add to collection",
     "newCollection": "New collection",
