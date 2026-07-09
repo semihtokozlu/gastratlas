@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
+import { MapContainer, Marker, Popup, GeoJSON } from "react-leaflet";
 import L, { type PathOptions } from "leaflet";
 import type { Feature } from "geojson";
 import "leaflet/dist/leaflet.css";
@@ -9,9 +9,11 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import type { RecipeGeoPoint } from "@/features/recipes/queries";
+import { EMPIRE_COLORS, EMPIRE_I18N_KEYS, empireKeyForYearRange } from "@/lib/history/empires";
 import borders1400 from "@/data/historical-borders/1400.json";
 import borders1492 from "@/data/historical-borders/1492.json";
 import borders1600 from "@/data/historical-borders/1600.json";
+import landData from "@/data/historical-borders/land.json";
 
 /**
  * Kaynak: aourednik/historical-basemaps (GPLv3) — bkz.
@@ -25,28 +27,11 @@ function bordersForYear(year: number | null) {
   return borders1600;
 }
 
-// Bizans için mor: Bizans imparatorluk moru (Tyrian purple) tarihi bir
-// referans — sıcak bordo/bakır paletinden bilinçli olarak ayrışır.
-const EMPIRE_COLORS: Record<string, string> = {
-  "Ottoman Empire": "#6E1F2E",
-  "Safavid Empire": "#B4652D",
-  "Byzantine Empire": "#5C3566",
+const LAND_STYLE: PathOptions = {
+  color: "transparent",
+  fillColor: "#DDD2B8",
+  fillOpacity: 1,
 };
-
-const EMPIRE_I18N_KEYS: Record<string, string> = {
-  "Ottoman Empire": "empireOttoman",
-  "Safavid Empire": "empireSafavid",
-  "Byzantine Empire": "empireByzantine",
-};
-
-/** Bant rengi, çevrilmiş dönem adının kırılgan string eşleşmesi yerine
- * yıl aralığına göre belirlenir (bkz. Era modeli: Bizans 330-1453,
- * Osmanlı Klasik 1453-1600, Safevi 1501-1736). */
-function empireKeyForYearRange(startYear: number): string {
-  if (startYear < 1453) return "Byzantine Empire";
-  if (startYear >= 1501) return "Safavid Empire";
-  return "Ottoman Empire";
-}
 
 function borderStyle(feature?: Feature): PathOptions {
   const color = EMPIRE_COLORS[(feature?.properties as { name?: string } | undefined)?.name ?? ""] ?? "#6B6660";
@@ -166,11 +151,17 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
       {visiblePoints.length === 0 && <p className="px-5 pt-4 text-sm text-ink-muted">{t("noResultsForYear")}</p>}
 
       <div className="relative">
-        <MapContainer center={[38, 25]} zoom={4} scrollWheelZoom={false} style={{ height: "600px", width: "100%" }}>
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          />
+        <MapContainer
+          center={[38, 25]}
+          zoom={4}
+          scrollWheelZoom={false}
+          style={{ height: "600px", width: "100%" }}
+          className="map-atlas-canvas"
+          attributionControl={false}
+        >
+          {/* Modern harita karoları yerine yalnızca kıta silueti — atlas
+              plakası hissi (bkz. src/data/historical-borders/README.md). */}
+          <GeoJSON data={landData as GeoJSON.FeatureCollection} style={LAND_STYLE} interactive={false} />
           {borderData && (
             // key: selectedYear değiştiğinde react-leaflet'in katmanı yeniden
             // oluşturması için (GeoJSON layer'ı `data` prop'unu imperatif
@@ -210,6 +201,9 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           </div>
         )}
       </div>
+      <p className="border-t border-line px-5 py-2 text-[11px] text-ink-muted">
+        {t("dataCredit")}
+      </p>
     </div>
   );
 }

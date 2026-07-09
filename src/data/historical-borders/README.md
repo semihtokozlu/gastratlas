@@ -23,3 +23,16 @@ yumuşatmadır, sınırların temsil ettiği tarihi kapsamı değiştirmez.
 Bu, gerçek tarihi sınırların kabaca yaklaşık değerleridir (üç ayrı
 anlık görüntü, sürekli bir zaman serisi değil) — hassas kartografik
 doğruluk iddiası taşımaz.
+
+## `land.json` — kıta silueti
+
+Harita artık modern bir "Google Maps" görünümü (yol/şehir/etiket) yerine
+yalnızca dönem sınırlarını gösteren bir atlas plakası gibi tasarlandı.
+Bunun için arka planda bir döşeme (tile) servisi yerine, tek seferlik
+indirilip basitleştirilmiş statik bir kıta silueti kullanılıyor:
+
+Kaynak: [Natural Earth](https://www.naturalearthdata.com/) `ne_110m_land`
+(kamu malı / public domain — telif kısıtlaması yok). Douglas-Peucker ile
+basitleştirildi (epsilon 0.35° — yalnızca sabit zoom seviyesinde soft bir
+arka plan siluetidir, kartografik hassasiyet gerekmez; köşe sayısı
+%56 azaltıldı, 5143 → 2282).

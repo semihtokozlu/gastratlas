@@ -341,7 +341,8 @@
     "noResultsForYear": "Bu yılda bu bölgede tarif yok.",
     "empireOttoman": "Osmanlı İmparatorluğu",
     "empireSafavid": "Safevi İmparatorluğu",
-    "empireByzantine": "Bizans İmparatorluğu"
+    "empireByzantine": "Bizans İmparatorluğu",
+    "dataCredit": "Kıta silueti: Natural Earth (kamu malı). Tarihi sınırlar: aourednik/historical-basemaps (GPLv3), kabaca yaklaşıklıktır."
   },
   "timelinePage": {
     "title": "Zaman Çizelgesi",

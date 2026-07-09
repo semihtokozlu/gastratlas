@@ -19,6 +19,7 @@ export type TimelineEventData = {
   description: string | null;
   recipeSlug: string | null;
   recipeTitle: string | null;
+  eraName: string | null;
 };
 
 export async function getTimelineEvents(locale: string): Promise<TimelineEventData[]> {
@@ -29,6 +30,7 @@ export async function getTimelineEvents(locale: string): Promise<TimelineEventDa
     include: {
       translations: { where: localeFilter },
       recipe: { include: { translations: { where: localeFilter } } },
+      era: { include: { translations: { where: localeFilter } } },
     },
   });
 
@@ -36,6 +38,7 @@ export async function getTimelineEvents(locale: string): Promise<TimelineEventDa
     const t = pickTranslation(ev.translations, locale);
     if (!t) return [];
     const recipeTranslation = ev.recipe ? pickTranslation(ev.recipe.translations, locale) : undefined;
+    const eraTranslation = ev.era ? pickTranslation(ev.era.translations, locale) : undefined;
     return [
       {
         slug: ev.slug,
@@ -44,6 +47,7 @@ export async function getTimelineEvents(locale: string): Promise<TimelineEventDa
         description: t.description ?? null,
         recipeSlug: ev.recipe?.slug ?? null,
         recipeTitle: recipeTranslation?.title ?? null,
+        eraName: eraTranslation?.name ?? null,
       },
     ];
   });

@@ -14,6 +14,12 @@
   :focus-visible { @apply outline-2 outline-offset-2 outline-accent; }
 }
 
+/* Harita: modern harita karoları yerine atlas plakası hissi — "deniz"
+   zemin rengi, kıta siluetiyle (#DDD2B8) birlikte kullanılır. */
+.map-atlas-canvas {
+  background: #b9c4c1 !important;
+}
+
 /* Harita: tarif fotoğraf işaretleri (bkz. WorldMap.tsx) */
 .map-thumb {
   width: 40px;

@@ -341,7 +341,8 @@
     "noResultsForYear": "No recipes in this region for this year.",
     "empireOttoman": "Ottoman Empire",
     "empireSafavid": "Safavid Empire",
-    "empireByzantine": "Byzantine Empire"
+    "empireByzantine": "Byzantine Empire",
+    "dataCredit": "Landmass silhouette: Natural Earth (public domain). Historical borders: aourednik/historical-basemaps (GPLv3), a rough approximation."
   },
   "timelinePage": {
     "title": "Timeline",
