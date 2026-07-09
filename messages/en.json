@@ -342,7 +342,13 @@
     "empireOttoman": "Ottoman Empire",
     "empireSafavid": "Safavid Empire",
     "empireByzantine": "Byzantine Empire",
-    "dataCredit": "Landmass silhouette: Natural Earth (public domain). Historical borders: aourednik/historical-basemaps (GPLv3), a rough approximation."
+    "dataCredit": "Landmass silhouette: Natural Earth (public domain). Historical borders: aourednik/historical-basemaps (GPLv3), a rough approximation.",
+    "play": "Start time travel",
+    "pause": "Pause",
+    "layerTradeRoutes": "Trade Routes",
+    "layerIngredients": "Ingredient Origins",
+    "layerCities": "Culinary Cities",
+    "layerConnections": "Cultural Connections"
   },
   "timelinePage": {
     "title": "Timeline",

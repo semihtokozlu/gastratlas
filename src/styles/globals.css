@@ -49,3 +49,73 @@
 .map-popup .leaflet-popup-tip {
   background: var(--color-bg);
 }
+
+/* Harita: rota/bağlantı çizgileri için ince tooltip */
+.map-route-tooltip {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--color-text);
+  padding: 3px 8px;
+}
+
+/* Harita: kıtalar üzerindeki bölge isim etiketleri — eski atlas plakası
+   yazı stili. */
+.map-region-label {
+  font-family: var(--font-serif, serif);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #6b5f4a;
+  opacity: 0.75;
+  white-space: nowrap;
+  text-transform: uppercase;
+  pointer-events: none;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.5);
+}
+
+/* Harita: malzeme kökeni işareti */
+.map-ingredient-marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: var(--color-bg);
+  border: 1.5px solid #5c7a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  box-shadow: 0 1px 3px rgb(43 42 40 / 0.3);
+}
+
+/* Harita: tarifsiz mutfak şehri işareti — ince, boş bir halka */
+.map-city-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: transparent;
+  border: 2px solid #6B6660;
+  box-shadow: 0 1px 2px rgb(43 42 40 / 0.25);
+}
+
+/* Harita: eskimiş kağıt dokusu + vinyet — tıklamaları engellemesin diye
+   pointer-events kapalı; yalnızca atmosfer katmanı. */
+.map-atlas-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 450;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgb(43 42 40 / 0.16) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Harita: pusula gülü — sabit köşe süsü */
+.map-compass {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 460;
+  pointer-events: none;
+  opacity: 0.9;
+}

@@ -342,7 +342,13 @@
     "empireOttoman": "Osmanlı İmparatorluğu",
     "empireSafavid": "Safevi İmparatorluğu",
     "empireByzantine": "Bizans İmparatorluğu",
-    "dataCredit": "Kıta silueti: Natural Earth (kamu malı). Tarihi sınırlar: aourednik/historical-basemaps (GPLv3), kabaca yaklaşıklıktır."
+    "dataCredit": "Kıta silueti: Natural Earth (kamu malı). Tarihi sınırlar: aourednik/historical-basemaps (GPLv3), kabaca yaklaşıklıktır.",
+    "play": "Zamanda yolculuğu başlat",
+    "pause": "Duraklat",
+    "layerTradeRoutes": "Ticaret Yolları",
+    "layerIngredients": "Malzeme Kökenleri",
+    "layerCities": "Mutfak Şehirleri",
+    "layerConnections": "Kültürel Bağlantılar"
   },
   "timelinePage": {
     "title": "Zaman Çizelgesi",
