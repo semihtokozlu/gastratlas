@@ -338,7 +338,10 @@
     "allPeriods": "All periods",
     "yearLabel": "Year: {year}",
     "showAll": "Show all periods",
-    "noResultsForYear": "No recipes in this region for this year."
+    "noResultsForYear": "No recipes in this region for this year.",
+    "empireOttoman": "Ottoman Empire",
+    "empireSafavid": "Safavid Empire",
+    "empireByzantine": "Byzantine Empire"
   },
   "timelinePage": {
     "title": "Timeline",

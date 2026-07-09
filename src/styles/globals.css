@@ -13,3 +13,33 @@
   h1, h2, h3, h4 { @apply font-serif tracking-tight; }
   :focus-visible { @apply outline-2 outline-offset-2 outline-accent; }
 }
+
+/* Harita: tarif fotoğraf işaretleri (bkz. WorldMap.tsx) */
+.map-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 1px 4px rgb(43 42 40 / 0.35);
+  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+}
+.map-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 2px 8px rgb(43 42 40 / 0.45);
+  z-index: 1000;
+}
+
+/* Harita: Leaflet popup'ını marka kartlarıyla uyumlu hale getirir */
+.map-popup .leaflet-popup-content-wrapper {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+.map-popup .leaflet-popup-content {
+  margin: 0.85rem 1rem;
+}
+.map-popup .leaflet-popup-tip {
+  background: var(--color-bg);
+}

@@ -338,7 +338,10 @@
     "allPeriods": "Tüm dönemler",
     "yearLabel": "Yıl: {year}",
     "showAll": "Tüm dönemleri göster",
-    "noResultsForYear": "Bu yılda bu bölgede tarif yok."
+    "noResultsForYear": "Bu yılda bu bölgede tarif yok.",
+    "empireOttoman": "Osmanlı İmparatorluğu",
+    "empireSafavid": "Safevi İmparatorluğu",
+    "empireByzantine": "Bizans İmparatorluğu"
   },
   "timelinePage": {
     "title": "Zaman Çizelgesi",
