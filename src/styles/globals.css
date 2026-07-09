@@ -119,3 +119,18 @@
   pointer-events: none;
   opacity: 0.9;
 }
+
+/* Harita: tarihi olay işareti (Timeline ile ortak) */
+.map-event-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--color-secondary);
+  border: 2px solid var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-bg);
+  box-shadow: 0 1px 3px rgb(43 42 40 / 0.35);
+}

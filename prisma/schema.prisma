@@ -314,11 +314,16 @@ model EraTranslation {
 /// Zaman çizelgesi düğümleri — bir tarife bağlanabilir ama zorunlu değildir
 /// (ör. "Baharat Yolu'nun açılışı" tarifsiz bir olaydır).
 model TimelineEvent {
-  id       String  @id @default(cuid())
-  slug     String  @unique
-  year     Int
-  eraId    String?
-  recipeId String?
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  year      Int
+  eraId     String?
+  recipeId  String?
+  // Haritada gösterilecek konum — bağlı bir tarif yoksa (ör. "İstanbul'un
+  // Fethi" gibi salt tarihi olaylar) buradan alınır; tarif varsa ve bu
+  // alanlar boşsa sorgu katmanı tarifin kendi konumuna düşer.
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
 
   era          Era?                       @relation(fields: [eraId], references: [id], onDelete: SetNull)
   recipe       Recipe?                    @relation(fields: [recipeId], references: [id], onDelete: SetNull)

@@ -348,7 +348,9 @@
     "layerTradeRoutes": "Trade Routes",
     "layerIngredients": "Ingredient Origins",
     "layerCities": "Culinary Cities",
-    "layerConnections": "Cultural Connections"
+    "layerConnections": "Cultural Connections",
+    "liveStats": "{recipes} recipes · {countries} countries · {empires} empires",
+    "searchPlaceholder": "Search recipes..."
   },
   "timelinePage": {
     "title": "Timeline",

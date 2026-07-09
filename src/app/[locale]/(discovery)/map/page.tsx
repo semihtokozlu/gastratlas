@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getRecipeGeoPoints } from "@/features/recipes/queries";
+import { getTimelineEvents } from "@/features/timeline/queries";
 import { MapLoader } from "@/components/map/MapLoader";
 
 export const revalidate = 3600;
@@ -23,6 +24,7 @@ export default async function MapPage({ params }: { params: Promise<Params> }) {
 
   const t = await getTranslations("mapPage");
   const points = await getRecipeGeoPoints(locale);
+  const timelineEvents = await getTimelineEvents(locale);
 
   return (
     <main className="container py-12">
@@ -30,7 +32,7 @@ export default async function MapPage({ params }: { params: Promise<Params> }) {
         {t("title")}
       </h1>
       <p className="mb-8 mt-3 max-w-xl text-ink-muted">{t("subtitle")}</p>
-      <MapLoader points={points} />
+      <MapLoader points={points} timelineEvents={timelineEvents} />
     </main>
   );
 }

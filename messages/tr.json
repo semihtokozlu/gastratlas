@@ -348,7 +348,9 @@
     "layerTradeRoutes": "Ticaret Yolları",
     "layerIngredients": "Malzeme Kökenleri",
     "layerCities": "Mutfak Şehirleri",
-    "layerConnections": "Kültürel Bağlantılar"
+    "layerConnections": "Kültürel Bağlantılar",
+    "liveStats": "{recipes} tarif · {countries} ülke · {empires} imparatorluk",
+    "searchPlaceholder": "Tarif ara..."
   },
   "timelinePage": {
     "title": "Zaman Çizelgesi",

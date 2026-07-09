@@ -9,6 +9,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import type { RecipeGeoPoint } from "@/features/recipes/queries";
+import type { TimelineEventData } from "@/features/timeline/queries";
 import { EMPIRE_COLORS, EMPIRE_I18N_KEYS, empireKeyForYearRange } from "@/lib/history/empires";
 import { REGION_LABELS } from "@/data/map-content/regionLabels";
 import { TRADE_ROUTES } from "@/data/map-content/tradeRoutes";
@@ -93,10 +94,21 @@ const CITY_ICON = L.divIcon({
   iconAnchor: [6, 6],
 });
 
+const EVENT_ICON = L.divIcon({
+  className: "",
+  html: '<div class="map-event-marker">★</div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
 const AUTOPLAY_STEP_YEARS = 8;
 const AUTOPLAY_INTERVAL_MS = 220;
+/** Bir tarihi olay, seçili yılın bu kadar yıl yakınındaysa haritada
+ * belirir — ani kaybolma yerine kaydırıcıyla birlikte doğal bir
+ * "yaklaşma/uzaklaşma" hissi verir. */
+const EVENT_VISIBILITY_WINDOW_YEARS = 20;
 
-export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
+export function WorldMap({ points, timelineEvents }: { points: RecipeGeoPoint[]; timelineEvents: TimelineEventData[] }) {
   const t = useTranslations("mapPage");
   const locale = useLocale();
   const isTr = locale === "tr";
@@ -121,6 +133,9 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRefs = useRef<Map<string, L.Marker>>(new Map());
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [layers, setLayers] = useState({
     tradeRoutes: false,
@@ -170,12 +185,45 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
 
   const pointsBySlug = useMemo(() => new Map(points.map((p) => [p.slug, p])), [points]);
 
+  const visibleEvents = timelineEvents.filter(
+    (ev) =>
+      ev.latitude !== null &&
+      ev.longitude !== null &&
+      (selectedYear === null || Math.abs(ev.year - selectedYear) <= EVENT_VISIBILITY_WINDOW_YEARS)
+  );
+
   const borderData = bordersForYear(selectedYear);
   const activeEmpires = borderData
     ? [...new Set(borderData.features.map((f) => (f.properties as { name?: string }).name).filter((n): n is string => !!n))]
     : [];
 
   const yearSpan = Math.max(maxYear - minYear, 1);
+
+  // Kaydırırken canlı özet — görünür tarif/ülke/imparatorluk sayısı
+  const liveStats = useMemo(() => {
+    const countries = new Set(visiblePoints.map((p) => p.countryName));
+    return { recipeCount: visiblePoints.length, countryCount: countries.size, empireCount: activeEmpires.length };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visiblePoints, activeEmpires.length]);
+
+  const searchResults =
+    searchQuery.trim().length >= 2
+      ? points.filter((p) => p.title.toLowerCase().includes(searchQuery.trim().toLowerCase())).slice(0, 6)
+      : [];
+
+  function jumpToRecipe(slug: string) {
+    const point = pointsBySlug.get(slug);
+    if (!point || !mapRef.current) return;
+    setIsPlaying(false);
+    setSelectedYear(null);
+    setSearchQuery("");
+    mapRef.current.flyTo([point.latitude, point.longitude], 6, { duration: 0.8 });
+    // Popup'ı hemen açmaya çalışırsak flyTo animasyonu tamamlanmadan marker
+    // henüz doğru konumda olmayabilir — kısa bir gecikme ile açıyoruz.
+    setTimeout(() => {
+      markerRefs.current.get(slug)?.openPopup();
+    }, 850);
+  }
 
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-surface/40 shadow-card">
@@ -238,28 +286,64 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           <span>{maxYear}</span>
         </div>
 
-        {/* Katman anahtarları — varsayılan kapalı, harita ilk bakışta sade kalsın */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(
-            [
-              ["tradeRoutes", t("layerTradeRoutes")],
-              ["ingredients", t("layerIngredients")],
-              ["cities", t("layerCities")],
-              ["connections", t("layerConnections")],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => toggleLayer(key)}
-              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                layers[key]
-                  ? "border-primary bg-primary text-bg"
-                  : "border-line text-ink-muted hover:border-primary hover:text-primary"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* Kaydırırken canlı özet */}
+        <p className="mt-2 text-xs text-ink-muted">
+          {t("liveStats", {
+            recipes: liveStats.recipeCount,
+            countries: liveStats.countryCount,
+            empires: liveStats.empireCount,
+          })}
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          {/* Katman anahtarları — varsayılan kapalı, harita ilk bakışta sade kalsın */}
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["tradeRoutes", t("layerTradeRoutes")],
+                ["ingredients", t("layerIngredients")],
+                ["cities", t("layerCities")],
+                ["connections", t("layerConnections")],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => toggleLayer(key)}
+                className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                  layers[key]
+                    ? "border-primary bg-primary text-bg"
+                    : "border-line text-ink-muted hover:border-primary hover:text-primary"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tarif arama/git */}
+          <div className="relative">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="w-48 rounded-full border border-line bg-bg px-3 py-1 text-xs text-ink placeholder:text-ink-muted"
+            />
+            {searchResults.length > 0 && (
+              <ul className="absolute right-0 top-full z-[1100] mt-1 w-56 overflow-hidden rounded-lg border border-line bg-bg shadow-card">
+                {searchResults.map((r) => (
+                  <li key={r.slug}>
+                    <button
+                      onClick={() => jumpToRecipe(r.slug)}
+                      className="block w-full px-3 py-2 text-left text-xs text-ink hover:bg-surface"
+                    >
+                      {r.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 
@@ -273,6 +357,7 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           style={{ height: "600px", width: "100%" }}
           className="map-atlas-canvas"
           attributionControl={false}
+          ref={mapRef}
         >
           {/* Modern harita karoları yerine yalnızca kıta silueti — atlas
               plakası hissi (bkz. src/data/historical-borders/README.md). */}
@@ -294,23 +379,27 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           ))}
 
           {layers.tradeRoutes &&
-            TRADE_ROUTES.map((route) => (
-              <Polyline
-                key={route.slug}
-                positions={route.path}
-                pathOptions={{ color: route.color, weight: 2, opacity: 0.75, dashArray: "6 8" }}
-              >
-                <Tooltip sticky className="map-route-tooltip">
-                  <strong>{isTr ? route.nameTr : route.nameEn}</strong>
-                </Tooltip>
-                <Popup className="map-popup">
-                  <p className="font-serif text-ink" style={{ fontSize: "1.05rem" }}>
-                    {isTr ? route.nameTr : route.nameEn}
-                  </p>
-                  <p className="mt-1 text-xs text-ink-muted">{isTr ? route.noteTr : route.noteEn}</p>
-                </Popup>
-              </Polyline>
-            ))}
+            TRADE_ROUTES.map((route) => {
+              const isActiveNow =
+                selectedYear === null || (selectedYear >= route.activeFrom && selectedYear <= route.activeUntil);
+              return (
+                <Polyline
+                  key={route.slug}
+                  positions={route.path}
+                  pathOptions={{ color: route.color, weight: 2, opacity: isActiveNow ? 0.75 : 0.18, dashArray: "6 8" }}
+                >
+                  <Tooltip sticky className="map-route-tooltip">
+                    <strong>{isTr ? route.nameTr : route.nameEn}</strong>
+                  </Tooltip>
+                  <Popup className="map-popup">
+                    <p className="font-serif text-ink" style={{ fontSize: "1.05rem" }}>
+                      {isTr ? route.nameTr : route.nameEn}
+                    </p>
+                    <p className="mt-1 text-xs text-ink-muted">{isTr ? route.noteTr : route.noteEn}</p>
+                  </Popup>
+                </Polyline>
+              );
+            })}
 
           {layers.connections &&
             DISH_CONNECTIONS.map((conn) => {
@@ -360,11 +449,32 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
               </Marker>
             ))}
 
+          {visibleEvents.map((ev) => (
+            <Marker key={ev.slug} position={[ev.latitude as number, ev.longitude as number]} icon={EVENT_ICON}>
+              <Popup className="map-popup">
+                <p className="text-xs uppercase tracking-[0.1em] text-accent">{ev.year}</p>
+                <p className="mt-1 font-serif text-ink" style={{ fontSize: "1.05rem" }}>
+                  {ev.title}
+                </p>
+                {ev.description && <p className="mt-1 text-xs text-ink-muted">{ev.description}</p>}
+                {ev.recipeSlug && (
+                  <Link href={`/recipes/${ev.recipeSlug}`} className="mt-2 inline-block text-xs text-primary underline">
+                    {ev.recipeTitle}
+                  </Link>
+                )}
+              </Popup>
+            </Marker>
+          ))}
+
           {visiblePoints.map((p) => (
             <Marker
               key={p.slug}
               position={[p.latitude, p.longitude]}
               icon={p.heroImage ? thumbnailIcon(getPublicImageUrl(p.heroImage.storagePath)) : DOT_ICON}
+              ref={(marker) => {
+                if (marker) markerRefs.current.set(p.slug, marker);
+                else markerRefs.current.delete(p.slug);
+              }}
             >
               <Popup className="map-popup">
                 <Link href={`/recipes/${p.slug}`} className="font-serif text-ink hover:text-primary" style={{ fontSize: "1.05rem" }}>

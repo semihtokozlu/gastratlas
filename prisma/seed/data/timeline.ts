@@ -10,6 +10,10 @@ export const timelineEventsSeed = [
     year: 1453,
     eraSlug: "classical-ottoman-period",
     recipeSlug: null as string | null,
+    // Bağlı bir tarif yok — konum doğrudan burada (bkz. şema notu,
+    // TimelineEvent.latitude/longitude).
+    latitude: 41.0082,
+    longitude: 28.9784,
     tr: {
       title: "İstanbul'un Fethi",
       description: "Osmanlı saray mutfağının kurumsallaşma sürecinin başlangıç noktası kabul edilir.",

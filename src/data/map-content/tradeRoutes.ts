@@ -12,6 +12,12 @@ export type TradeRoute = {
   noteTr: string;
   noteEn: string;
   color: string;
+  /** Rotanın tarihsel olarak en etkin kabul edildiği kabaca aralık —
+   * seçili yıl bu aralığın dışındaysa harita rotayı soluk gösterir
+   * (tamamen gizlemez, çünkü güzergahlar keskin tarihlerle başlayıp
+   * bitmedi). */
+  activeFrom: number;
+  activeUntil: number;
   path: [number, number][]; // [lat, lng]
 };
 
@@ -23,6 +29,8 @@ export const TRADE_ROUTES: TradeRoute[] = [
     noteTr: "Tarçın, karabiber ve diğer baharatları Güney Asya'dan Basra Körfezi ve Fars topraklarından geçirerek Osmanlı sofralarına taşıyan deniz-kara güzergahı.",
     noteEn: "The sea-and-land corridor that carried cinnamon, pepper, and other spices from South Asia through the Persian Gulf and Persian lands to Ottoman tables.",
     color: "#B4652D",
+    activeFrom: 1000,
+    activeUntil: 1736,
     path: [
       [8, 77], // Güney Hindistan / Malabar kıyısı
       [25.3, 60.5], // Hürmüz Boğazı
@@ -39,6 +47,8 @@ export const TRADE_ROUTES: TradeRoute[] = [
     noteTr: "Orta Asya'dan gelen ipek, baharat ve tatlı geleneklerini Fars topraklarından geçirip Anadolu'ya, oradan İstanbul'a ulaştıran kara güzergahının batı ucu.",
     noteEn: "The western end of the overland route that carried silk, spices, and sweet-making traditions from Central Asia through Persian lands into Anatolia and on to Istanbul.",
     color: "#6E1F2E",
+    activeFrom: 330,
+    activeUntil: 1600,
     path: [
       [39.65, 66.96], // Semerkant
       [36.3, 59.6], // Meşhed

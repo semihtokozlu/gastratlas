@@ -225,6 +225,8 @@ async function main() {
         year: ev.year,
         eraId: eraIds.get(ev.eraSlug) ?? null,
         recipeId: ev.recipeSlug ? recipeIds.get(ev.recipeSlug) : null,
+        latitude: "latitude" in ev ? ev.latitude : null,
+        longitude: "longitude" in ev ? ev.longitude : null,
         translations: { create: [{ locale: "tr", ...ev.tr }, { locale: "en", ...ev.en }] },
       },
     });
