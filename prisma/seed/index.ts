@@ -2,6 +2,11 @@ import { PrismaClient, type AlternativeType, type Difficulty, type SourceType, t
 import { ottomanSeed } from "./data/ottoman";
 import { greekSeed } from "./data/greek";
 import { persianSeed } from "./data/persian";
+import { abbasidSeed } from "./data/abbasid";
+import { mamlukSeed } from "./data/mamluk";
+import { andalusianSeed } from "./data/andalusian";
+import { seljukSeed } from "./data/seljuk";
+import { ilkhanateSeed } from "./data/ilkhanate";
 import { authorsSeed } from "./data/authors";
 import { recipesSeed } from "./data/recipes";
 import { greekRecipesSeed } from "./data/greek-recipes";
@@ -203,6 +208,11 @@ async function main() {
   const ottomanDefaults = await processTaxonomy(ottomanSeed);
   const greekDefaults = await processTaxonomy(greekSeed);
   await processTaxonomy(persianSeed);
+  await processTaxonomy(abbasidSeed);
+  await processTaxonomy(mamlukSeed);
+  await processTaxonomy(andalusianSeed);
+  await processTaxonomy(seljukSeed);
+  await processTaxonomy(ilkhanateSeed);
 
   for (const a of authorsSeed) {
     const row = await db.author.upsert({

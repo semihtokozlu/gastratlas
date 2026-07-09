@@ -14,15 +14,24 @@ Geometri ayrıca Douglas-Peucker algoritmasıyla basitleştirildi (epsilon
 gereğinden fazla köşeli/keskin görünüyordu; bu yalnızca görsel bir
 yumuşatmadır, sınırların temsil ettiği tarihi kapsamı değiştirmez.
 
-| Dosya | İçerik | Kullanım aralığı (harita kaydırıcısında) |
-|---|---|---|
-| `1400.json` | Bizans İmparatorluğu + Osmanlı İmparatorluğu | < 1453 |
-| `1492.json` | Osmanlı İmparatorluğu (yalnız) | 1453–1500 |
-| `1600.json` | Osmanlı İmparatorluğu + Safevi İmparatorluğu | ≥ 1501 |
+| Dosya | İçerik (kaynaktaki orijinal ad → bizim `name`) |
+|---|---|
+| `700.json` | Eastern Roman Empire → Byzantine Empire |
+| `900.json` | Byzantine Empire; Abbasid Caliphate; Emirate of Córdoba → Umayyad Caliphate of Córdoba |
+| `1100.json` | Byzantine Empire; Seljuk Empire → Sultanate of Rum |
+| `1300.json` | Byzantine Empire; Ilkhanate; Mamluke Sultanate → Mamluk Sultanate; Seljuk Caliphate → Sultanate of Rum |
+| `1400.json` | Byzantine Empire; Ottoman Empire |
+| `1492.json` | Ottoman Empire (yalnız) |
+| `1600.json` | Ottoman Empire; Safavid Empire |
 
-Bu, gerçek tarihi sınırların kabaca yaklaşık değerleridir (üç ayrı
+Bu, gerçek tarihi sınırların kabaca yaklaşık değerleridir (yedi ayrı
 anlık görüntü, sürekli bir zaman serisi değil) — hassas kartografik
-doğruluk iddiası taşımaz.
+doğruluk iddiası taşımaz. Hangi yılda hangi dosyanın gösterileceği ve
+o dosyadaki hangi varlığın seçili yıl için hâlâ geçerli olduğu, kod
+tarafında (`src/lib/history/empires.ts`) medeniyetlerin gerçek
+başlangıç/bitiş yıllarına göre ayrıca filtrelenir — yani örneğin
+`900.json` kullanılırken seçili yıl 1035 ise Endülüs Emevi Halifeliği
+(1031'de sona erdi) otomatik olarak gizlenir, dosya değişmeden.
 
 ## `land.json` — kıta silueti
 

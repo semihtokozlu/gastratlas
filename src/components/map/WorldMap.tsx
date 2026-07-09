@@ -10,12 +10,16 @@ import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import type { RecipeGeoPoint } from "@/features/recipes/queries";
 import type { TimelineEventData } from "@/features/timeline/queries";
-import { EMPIRE_COLORS, EMPIRE_I18N_KEYS, empireKeyForYearRange } from "@/lib/history/empires";
+import { EMPIRE_COLORS, EMPIRE_I18N_KEYS, empireKeyForYearRange, isEmpireActiveInYear } from "@/lib/history/empires";
 import { REGION_LABELS } from "@/data/map-content/regionLabels";
 import { TRADE_ROUTES } from "@/data/map-content/tradeRoutes";
 import { INGREDIENT_ORIGINS } from "@/data/map-content/ingredientOrigins";
 import { CULINARY_CITIES } from "@/data/map-content/culinaryCities";
 import { DISH_CONNECTIONS } from "@/data/map-content/dishConnections";
+import borders700 from "@/data/historical-borders/700.json";
+import borders900 from "@/data/historical-borders/900.json";
+import borders1100 from "@/data/historical-borders/1100.json";
+import borders1300 from "@/data/historical-borders/1300.json";
 import borders1400 from "@/data/historical-borders/1400.json";
 import borders1492 from "@/data/historical-borders/1492.json";
 import borders1600 from "@/data/historical-borders/1600.json";
@@ -23,11 +27,17 @@ import landData from "@/data/historical-borders/land.json";
 
 /**
  * Kaynak: aourednik/historical-basemaps (GPLv3) — bkz.
- * src/data/historical-borders/README.md. Üç ayrı yıl anlık görüntüsü,
- * sürekli bir zaman serisi değil (kabaca yaklaşıklık).
+ * src/data/historical-borders/README.md. Yedi ayrı yıl anlık görüntüsü,
+ * sürekli bir zaman serisi değil (kabaca yaklaşıklık). Her dosya birden
+ * fazla imparatorluğu birlikte taşıyabilir; hangisinin seçili yıl için
+ * hâlâ geçerli olduğu isEmpireActiveInYear ile ayrıca filtrelenir.
  */
 function bordersForYear(year: number | null) {
   if (year === null) return null;
+  if (year < 750) return borders700;
+  if (year < 1077) return borders900;
+  if (year < 1300) return borders1100;
+  if (year < 1400) return borders1300;
   if (year < 1453) return borders1400;
   if (year < 1501) return borders1492;
   return borders1600;
@@ -192,7 +202,20 @@ export function WorldMap({ points, timelineEvents }: { points: RecipeGeoPoint[];
       (selectedYear === null || Math.abs(ev.year - selectedYear) <= EVENT_VISIBILITY_WINDOW_YEARS)
   );
 
-  const borderData = bordersForYear(selectedYear);
+  const rawBorderData = bordersForYear(selectedYear);
+  // Bir anlık görüntü dosyası birden fazla imparatorluğu birlikte
+  // taşıyabilir (bkz. historical-borders/README.md) — her varlığın
+  // seçili yıl için hâlâ geçerli olup olmadığı burada ayrıca filtrelenir.
+  const borderData =
+    rawBorderData && selectedYear !== null
+      ? {
+          ...rawBorderData,
+          features: rawBorderData.features.filter((f) => {
+            const name = (f.properties as { name?: string }).name;
+            return name ? isEmpireActiveInYear(name, selectedYear) : true;
+          }),
+        }
+      : rawBorderData;
   const activeEmpires = borderData
     ? [...new Set(borderData.features.map((f) => (f.properties as { name?: string }).name).filter((n): n is string => !!n))]
     : [];
