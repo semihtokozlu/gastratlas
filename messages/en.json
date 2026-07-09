@@ -334,7 +334,11 @@
   },
   "mapPage": {
     "title": "Map",
-    "subtitle": "Explore recipes at their geographic origin."
+    "subtitle": "Explore recipes at their geographic origin.",
+    "allPeriods": "All periods",
+    "yearLabel": "Year: {year}",
+    "showAll": "Show all periods",
+    "noResultsForYear": "No recipes in this region for this year."
   },
   "timelinePage": {
     "title": "Timeline",

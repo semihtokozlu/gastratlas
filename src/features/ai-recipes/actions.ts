@@ -325,6 +325,14 @@ export async function generateRecipeDraft(
     slug = `${baseSlug}-${suffix}`;
   }
 
+  // Haritada görünmesi için konum — şehir varsa şehrin, yoksa ülkenin
+  // koordinatları, aynı noktada üst üste binmesin diye küçük bir jitter ile
+  // (mevcut seed verisindeki desenle aynı — bkz. prisma/seed/data/ottoman.ts).
+  const baseLocation = city ?? country;
+  const jitter = () => (Math.random() - 0.5) * 0.04;
+  const latitude = baseLocation.latitude ? baseLocation.latitude.toNumber() + jitter() : null;
+  const longitude = baseLocation.longitude ? baseLocation.longitude.toNumber() + jitter() : null;
+
   const recipe = await db.$transaction(async (tx) => {
     return tx.recipe.create({
       data: {
@@ -337,6 +345,8 @@ export async function generateRecipeDraft(
         civilizationId: data.civilizationId ?? null,
         categoryId: data.categoryId ?? null,
         authorId: data.authorId,
+        latitude,
+        longitude,
         prepMinutes: draft.prepMinutes,
         cookMinutes: draft.cookMinutes,
         restMinutes: draft.restMinutes ?? null,

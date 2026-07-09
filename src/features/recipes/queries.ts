@@ -381,6 +381,10 @@ export type RecipeGeoPoint = {
   latitude: number;
   longitude: number;
   countryName: string;
+  eraName: string | null;
+  eraStartYear: number | null;
+  eraEndYear: number | null;
+  heroImage: HeroImage | null;
 };
 
 export async function getRecipeGeoPoints(locale: string): Promise<RecipeGeoPoint[]> {
@@ -391,6 +395,8 @@ export async function getRecipeGeoPoints(locale: string): Promise<RecipeGeoPoint
     include: {
       translations: { where: localeFilter },
       country: { include: { translations: { where: localeFilter } } },
+      era: { include: { translations: { where: localeFilter } } },
+      heroImage: true,
     },
   });
 
@@ -404,6 +410,17 @@ export async function getRecipeGeoPoints(locale: string): Promise<RecipeGeoPoint
         latitude: recipe.latitude.toNumber(),
         longitude: recipe.longitude.toNumber(),
         countryName: pickTranslation(recipe.country.translations, locale)?.name ?? recipe.country.slug,
+        eraName: recipe.era ? (pickTranslation(recipe.era.translations, locale)?.name ?? recipe.era.slug) : null,
+        eraStartYear: recipe.era?.startYear ?? null,
+        eraEndYear: recipe.era?.endYear ?? null,
+        heroImage: recipe.heroImage
+          ? {
+              storagePath: recipe.heroImage.storagePath,
+              alt: recipe.heroImage.alt,
+              credit: recipe.heroImage.credit,
+              isAiGenerated: recipe.heroImage.isAiGenerated,
+            }
+          : null,
       },
     ];
   });

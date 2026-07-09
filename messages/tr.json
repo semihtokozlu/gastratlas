@@ -334,7 +334,11 @@
   },
   "mapPage": {
     "title": "Harita",
-    "subtitle": "Tarifleri coğrafi kökenlerinde keşfedin."
+    "subtitle": "Tarifleri coğrafi kökenlerinde keşfedin.",
+    "allPeriods": "Tüm dönemler",
+    "yearLabel": "Yıl: {year}",
+    "showAll": "Tüm dönemleri göster",
+    "noResultsForYear": "Bu yılda bu bölgede tarif yok."
   },
   "timelinePage": {
     "title": "Zaman Çizelgesi",
