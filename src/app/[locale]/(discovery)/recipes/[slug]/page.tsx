@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublishedRecipeSlugs, getRecipeBySlug } from "@/features/recipes/queries";
 import { buildRecipeJsonLd } from "@/lib/seo/jsonld";
-import { getPublicImageUrl } from "@/lib/storage/upload";
+import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import { routing } from "@/i18n/routing";
 import { RecipeHero } from "@/components/recipe/RecipeHero";
 import { ViewTracker } from "@/components/recipe/ViewTracker";

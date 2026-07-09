@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getPublicImageUrl } from "@/lib/storage/upload";
+import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import { formatRelativeTime } from "@/lib/formatRelativeTime";
 import type { Difficulty } from "@prisma/client";
 import type { HeroImage } from "@/features/recipes/queries";

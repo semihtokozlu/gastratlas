@@ -63,7 +63,16 @@ export async function searchWikimediaImage(query: string): Promise<WikimediaImag
   }
   if (searchResults.length === 0) return null;
 
+  // Alaka düzeyi güvencesi: sorgunun İLK kelimesi (yemeğin asıl adı, ör.
+  // "Loukoumades") aday dosyanın başlığında geçmiyorsa reddedilir. Bu,
+  // genel tanımlayıcı kelimelerle (ör. "Greek dessert") eşleşip yemekle
+  // alakasız bir görselin (ör. "Bread in the Hellenic Republic") kabul
+  // edilmesini engeller — canlıda tespit edilen gerçek bir yanlış eşleşmeydi.
+  const primaryKeyword = query.trim().split(/\s+/)[0]?.toLowerCase();
+
   for (const result of searchResults) {
+    if (primaryKeyword && !result.title.toLowerCase().includes(primaryKeyword)) continue;
+
     const infoUrl = new URL(API_BASE);
     infoUrl.searchParams.set("action", "query");
     infoUrl.searchParams.set("titles", result.title);

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { getPublicImageUrl } from "@/lib/storage/upload";
+import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import type { HeroImage } from "@/features/recipes/queries";
 
 export function RecipeHero({
