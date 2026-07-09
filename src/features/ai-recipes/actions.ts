@@ -10,7 +10,7 @@ import {
   RECIPE_DRAFT_PROMPT_VERSION,
   RECIPE_DRAFT_PROMPT_TEMPLATE,
 } from "./prompt";
-import { generateRecipeDraftSchema, aiRecipeDraftSchema, type AIRecipeDraft } from "./schemas";
+import { generateRecipeDraftSchema, aiRecipeDraftSchema, type AIRecipeDraft, type GenerateRecipeDraftInput } from "./schemas";
 import type { ActionResult } from "@/features/recipes/schemas";
 import type { Unit, SourceType, AlternativeType } from "@prisma/client";
 
@@ -237,8 +237,23 @@ export async function generateRecipeDraft(
     throw e;
   }
 
-  const data = parsed.data;
+  return generateRecipeDraftCore(parsed.data, user.id);
+}
 
+/**
+ * Asıl üretim mantığı — `generateRecipeDraft`'tan (HTTP/session tabanlı
+ * EDITOR+ kontrolü) ayrıştırıldı ki idari/toplu üretim script'leri
+ * (ör. prisma/seed dışı, tek seferlik veri genişletme işleri) gerçek bir
+ * kullanıcı ID'si vererek doğrudan çağırabilsin — Supabase oturum
+ * çerezi olmayan bir Node script bağlamında `requireRole` zaten çalışmaz.
+ * Buradaki tek gerçek güvenlik sınırı (AI asla doğrudan yayına basmaz,
+ * her zaman AI_REVIEW) burada da aynen korunur; değişen yalnızca "kim
+ * tetikledi" doğrulamasının nerede yapıldığıdır.
+ */
+export async function generateRecipeDraftCore(
+  data: GenerateRecipeDraftInput,
+  actingUserId: string
+): Promise<ActionResult<{ id: string; slug: string; aiJobId: string }>> {
   const [cuisine, country, city, era, civilization, category] = await Promise.all([
     db.cuisine.findUniqueOrThrow({ where: { id: data.cuisineId }, include: { translations: true } }),
     db.country.findUniqueOrThrow({ where: { id: data.countryId }, include: { translations: true } }),
@@ -280,7 +295,7 @@ export async function generateRecipeDraft(
       type: "CONTENT_GENERATION",
       status: "RUNNING",
       promptHistoryId: promptHistory.id,
-      createdById: user.id,
+      createdById: actingUserId,
     },
   });
 
@@ -498,7 +513,7 @@ export async function generateRecipeDraft(
 
   await db.auditLog.create({
     data: {
-      userId: user.id,
+      userId: actingUserId,
       entityType: "Recipe",
       entityId: recipe.id,
       action: "CREATE",
