@@ -1,13 +1,40 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
+import L, { type PathOptions } from "leaflet";
+import type { Feature } from "geojson";
 import "leaflet/dist/leaflet.css";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/storage/publicUrl";
 import type { RecipeGeoPoint } from "@/features/recipes/queries";
+import borders1400 from "@/data/historical-borders/1400.json";
+import borders1492 from "@/data/historical-borders/1492.json";
+import borders1600 from "@/data/historical-borders/1600.json";
+
+/**
+ * Kaynak: aourednik/historical-basemaps (GPLv3) — bkz.
+ * src/data/historical-borders/README.md. Üç ayrı yıl anlık görüntüsü,
+ * sürekli bir zaman serisi değil (kabaca yaklaşıklık).
+ */
+function bordersForYear(year: number | null) {
+  if (year === null) return null;
+  if (year < 1453) return borders1400;
+  if (year < 1501) return borders1492;
+  return borders1600;
+}
+
+const EMPIRE_COLORS: Record<string, string> = {
+  "Ottoman Empire": "#6E1F2E",
+  "Safavid Empire": "#B4652D",
+  "Byzantine Empire": "#3D5A6C",
+};
+
+function borderStyle(feature?: Feature): PathOptions {
+  const color = EMPIRE_COLORS[(feature?.properties as { name?: string } | undefined)?.name ?? ""] ?? "#6B6660";
+  return { color, weight: 1.5, fillColor: color, fillOpacity: 0.18 };
+}
 
 const DOT_ICON = L.divIcon({
   className: "",
@@ -46,6 +73,8 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           (p) => p.eraStartYear !== null && p.eraEndYear !== null && selectedYear >= p.eraStartYear && selectedYear <= p.eraEndYear
         );
 
+  const borderData = bordersForYear(selectedYear);
+
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-4 rounded-lg border border-line p-4">
@@ -80,6 +109,12 @@ export function WorldMap({ points }: { points: RecipeGeoPoint[] }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        {borderData && (
+          // key: selectedYear değiştiğinde react-leaflet'in katmanı yeniden
+          // oluşturması için (GeoJSON layer'ı `data` prop'unu imperatif
+          // olarak izlemez).
+          <GeoJSON key={selectedYear} data={borderData as GeoJSON.FeatureCollection} style={borderStyle} />
+        )}
         {visiblePoints.map((p) => (
           <Marker
             key={p.slug}
