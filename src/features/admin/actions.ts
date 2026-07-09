@@ -335,3 +335,50 @@ export async function moderateComment(input: unknown): Promise<ActionResult<{ st
 
   return { ok: true, data: { status: comment.status } };
 }
+
+const verifyAlternativeSchema = z.object({
+  id: z.string().cuid(),
+  approve: z.boolean(),
+});
+
+/**
+ * AI'nin önerdiği malzeme alternatiflerini onaylar (isVerified: true) ya da
+ * reddeder (silinir) — EDITOR+. Şemadaki mevcut güvence: isVerified=false
+ * olan alternatifler recipes/queries.ts'te kullanıcıya hiç gösterilmez.
+ */
+export async function verifyIngredientAlternative(input: unknown): Promise<ActionResult<{ approved: boolean }>> {
+  const parsed = verifyAlternativeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: { code: "VALIDATION", message: "Geçersiz girdi" } };
+  }
+
+  let user;
+  try {
+    user = await requireRole("EDITOR");
+  } catch (e) {
+    if (e instanceof AuthError) return authErrorResult(e);
+    throw e;
+  }
+
+  const existing = await db.ingredientAlternative.findUnique({ where: { id: parsed.data.id } });
+  if (!existing) return { ok: false, error: { code: "NOT_FOUND", message: "Kayıt bulunamadı" } };
+
+  if (parsed.data.approve) {
+    await db.ingredientAlternative.update({ where: { id: parsed.data.id }, data: { isVerified: true } });
+  } else {
+    await db.ingredientAlternative.delete({ where: { id: parsed.data.id } });
+  }
+
+  await db.auditLog.create({
+    data: {
+      userId: user.id,
+      entityType: "IngredientAlternative",
+      entityId: parsed.data.id,
+      action: parsed.data.approve ? "UPDATE" : "DELETE",
+      before: { isVerified: existing.isVerified },
+      after: { approved: parsed.data.approve },
+    },
+  });
+
+  return { ok: true, data: { approved: parsed.data.approve } };
+}

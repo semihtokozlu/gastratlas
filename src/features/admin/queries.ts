@@ -240,3 +240,37 @@ export async function getAdminCommentList(locale: string, statusFilter?: string)
     recipeTitle: pickTranslation(c.recipe.translations, locale)?.title ?? c.recipe.slug,
   }));
 }
+
+export type UnverifiedAlternativeRow = {
+  id: string;
+  ingredientName: string;
+  alternativeName: string;
+  type: string;
+  ratio: number;
+  aiExplanation: string | null;
+  createdAt: Date;
+};
+
+/** AI'nin (bot) önerdiği, henüz EDITOR+ tarafından onaylanmamış malzeme alternatifleri. */
+export async function getUnverifiedAlternatives(locale: string): Promise<UnverifiedAlternativeRow[]> {
+  const localeFilter = { locale: { in: [locale, routing.defaultLocale] } };
+
+  const rows = await db.ingredientAlternative.findMany({
+    where: { isVerified: false },
+    orderBy: { createdAt: "desc" },
+    include: {
+      ingredient: { include: { translations: { where: localeFilter } } },
+      alternative: { include: { translations: { where: localeFilter } } },
+    },
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    ingredientName: pickTranslation(r.ingredient.translations, locale)?.name ?? r.ingredient.slug,
+    alternativeName: pickTranslation(r.alternative.translations, locale)?.name ?? r.alternative.slug,
+    type: r.type,
+    ratio: r.ratio.toNumber(),
+    aiExplanation: r.aiExplanation,
+    createdAt: r.createdAt,
+  }));
+}

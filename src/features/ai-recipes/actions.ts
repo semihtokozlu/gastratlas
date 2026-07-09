@@ -3,6 +3,8 @@
 import { db } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/auth/guards";
 import { generateStructuredContent, RECIPE_DRAFT_MODEL } from "@/lib/ai/textGeneration";
+import { searchWikimediaImage } from "@/lib/media/wikimedia";
+import { fetchAndUploadImage } from "@/lib/storage/upload";
 import {
   RECIPE_DRAFT_PROMPT_NAME,
   RECIPE_DRAFT_PROMPT_VERSION,
@@ -10,10 +12,23 @@ import {
 } from "./prompt";
 import { generateRecipeDraftSchema, aiRecipeDraftSchema, type AIRecipeDraft } from "./schemas";
 import type { ActionResult } from "@/features/recipes/schemas";
-import type { Unit } from "@prisma/client";
+import type { Unit, SourceType, AlternativeType } from "@prisma/client";
 
 const UNIT_ENUM = ["G", "KG", "ML", "L", "TSP", "TBSP", "CUP", "PIECE", "PINCH", "SLICE", "BUNCH"];
 const DIFFICULTY_ENUM = ["EASY", "MEDIUM", "HARD", "EXPERT"];
+const SOURCE_TYPE_ENUM = ["MANUSCRIPT", "BOOK", "ACADEMIC_PAPER", "ARCHIVE", "ORAL_HISTORY", "WEBSITE"];
+const ALTERNATIVE_TYPE_ENUM = [
+  "HISTORICAL",
+  "MODERN",
+  "VEGAN",
+  "VEGETARIAN",
+  "GLUTEN_FREE",
+  "LACTOSE_FREE",
+  "ECONOMIC",
+  "LOCAL",
+  "SAME_AROMA",
+  "SAME_TEXTURE",
+];
 
 const RECIPE_DRAFT_JSON_SCHEMA = {
   type: "object",
@@ -69,6 +84,36 @@ const RECIPE_DRAFT_JSON_SCHEMA = {
         proteinG: { type: "number" },
         fatG: { type: "number" },
         carbsG: { type: "number" },
+      },
+    },
+    sources: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          author: { type: "string" },
+          year: { type: "integer" },
+          type: { type: "string", enum: SOURCE_TYPE_ENUM },
+          reliability: { type: "integer" },
+          notes: { type: "string" },
+        },
+        required: ["title", "type", "reliability"],
+      },
+    },
+    alternatives: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          ingredientNameTr: { type: "string" },
+          alternativeNameTr: { type: "string" },
+          alternativeNameEn: { type: "string" },
+          type: { type: "string", enum: ALTERNATIVE_TYPE_ENUM },
+          ratio: { type: "number" },
+          explanation: { type: "string" },
+        },
+        required: ["ingredientNameTr", "alternativeNameTr", "alternativeNameEn", "type", "ratio", "explanation"],
       },
     },
   },
@@ -348,6 +393,85 @@ export async function generateRecipeDraft(
       },
     });
   });
+
+  // Kaynaklar — doğal unique alan yok, title+author ile findFirst sonra
+  // yoksa create (mevcut seed script'iyle aynı desen).
+  for (const source of draft.sources ?? []) {
+    let historicalSource = await db.historicalSource.findFirst({
+      where: { title: source.title, author: source.author ?? null },
+    });
+    if (!historicalSource) {
+      historicalSource = await db.historicalSource.create({
+        data: {
+          title: source.title,
+          author: source.author ?? null,
+          year: source.year ?? null,
+          type: source.type as SourceType,
+          reliability: source.reliability,
+          notes: source.notes ? `[AI önerisi, doğrulanmadı] ${source.notes}` : "[AI önerisi, doğrulanmadı]",
+        },
+      });
+    }
+    await db.recipeSource.upsert({
+      where: { recipeId_sourceId: { recipeId: recipe.id, sourceId: historicalSource.id } },
+      create: { recipeId: recipe.id, sourceId: historicalSource.id },
+      update: {},
+    });
+  }
+
+  // Malzeme alternatifleri — isVerified: false (şemadaki mevcut güvence).
+  // EDITOR+ admin panelinden onaylamadan kullanıcıya gösterilmez
+  // (bkz. src/features/recipes/queries.ts "isVerified: true" filtresi).
+  for (const alt of draft.alternatives ?? []) {
+    const baseIngredient = resolvedIngredients.find(
+      (ing) => ing.nameTr.toLocaleLowerCase("tr") === alt.ingredientNameTr.toLocaleLowerCase("tr")
+    );
+    if (!baseIngredient) continue; // AI'nin uydurduğu/eşleşmeyen bir ad — sessizce atla
+
+    const alternativeIngredientId = await resolveIngredientId(alt.alternativeNameTr, alt.alternativeNameEn);
+    if (alternativeIngredientId === baseIngredient.ingredientId) continue; // kendine alternatif olamaz
+
+    await db.ingredientAlternative.upsert({
+      where: {
+        ingredientId_alternativeId_type: {
+          ingredientId: baseIngredient.ingredientId,
+          alternativeId: alternativeIngredientId,
+          type: alt.type as AlternativeType,
+        },
+      },
+      create: {
+        ingredientId: baseIngredient.ingredientId,
+        alternativeId: alternativeIngredientId,
+        type: alt.type as AlternativeType,
+        ratio: alt.ratio,
+        aiExplanation: alt.explanation,
+        isVerified: false,
+      },
+      update: {},
+    });
+  }
+
+  // Görsel — best-effort: Wikimedia Commons'ta CC0/CC-BY/CC-BY-SA lisanslı,
+  // yeterli çözünürlükte bir görsel bulunursa otomatik eklenir; bulunamazsa
+  // tarif görsel olmadan (placeholder ile) yayına hazır kalır, işlem bloklanmaz.
+  try {
+    const image = await searchWikimediaImage(draft.titleEn);
+    if (image) {
+      const path = `${recipe.slug}-${Date.now()}.jpg`;
+      const uploaded = await fetchAndUploadImage(image.url, path);
+      const imageRecord = await db.image.create({
+        data: {
+          storagePath: uploaded.storagePath,
+          alt: draft.titleTr,
+          credit: image.attributionText,
+          isAiGenerated: false,
+        },
+      });
+      await db.recipe.update({ where: { id: recipe.id }, data: { heroImageId: imageRecord.id } });
+    }
+  } catch {
+    // Görsel bulunamadı/indirilemedi — sessizce atla, tarif taslağı yine de oluşur.
+  }
 
   await db.aIJob.update({
     where: { id: aiJob.id },

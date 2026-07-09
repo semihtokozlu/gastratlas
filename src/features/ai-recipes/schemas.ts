@@ -74,6 +74,50 @@ export const aiRecipeDraftSchema = z.object({
       carbsG: z.number().min(0),
     })
     .optional(),
+  /** AI önerisi kaynaklar — düşük/temkinli reliability ile, editoryal doğrulama beklenir. */
+  sources: z
+    .array(
+      z.object({
+        title: z.string().min(1).max(300),
+        author: z.string().max(200).optional(),
+        year: z.number().int().min(-3000).max(2100).optional(),
+        type: z.enum(["MANUSCRIPT", "BOOK", "ACADEMIC_PAPER", "ARCHIVE", "ORAL_HISTORY", "WEBSITE"]),
+        reliability: z.number().int().min(1).max(3),
+        notes: z.string().max(500).optional(),
+      })
+    )
+    .max(3)
+    .optional(),
+  /**
+   * ingredientNameTr, ingredients dizisindeki bir malzemenin nameTr'siyle
+   * BİREBİR eşleşmelidir — hangi malzemenin alternatifi olduğunu belirtir.
+   * isVerified=false ile kaydedilir (şemadaki mevcut güvence), EDITOR+
+   * onaylamadan kullanıcıya gösterilmez.
+   */
+  alternatives: z
+    .array(
+      z.object({
+        ingredientNameTr: z.string().min(1).max(100),
+        alternativeNameTr: z.string().min(1).max(100),
+        alternativeNameEn: z.string().min(1).max(100),
+        type: z.enum([
+          "HISTORICAL",
+          "MODERN",
+          "VEGAN",
+          "VEGETARIAN",
+          "GLUTEN_FREE",
+          "LACTOSE_FREE",
+          "ECONOMIC",
+          "LOCAL",
+          "SAME_AROMA",
+          "SAME_TEXTURE",
+        ]),
+        ratio: z.number().positive().max(10),
+        explanation: z.string().min(1).max(300),
+      })
+    )
+    .max(6)
+    .optional(),
 });
 
 export type AIRecipeDraft = z.infer<typeof aiRecipeDraftSchema>;

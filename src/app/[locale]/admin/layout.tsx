@@ -44,6 +44,9 @@ export default async function AdminLayout({
           <Link href="/admin/recipes/ai-draft" className="text-ink-muted hover:text-ink">
             {t("aiDraftNav")}
           </Link>
+          <Link href="/admin/alternatives" className="text-ink-muted hover:text-ink">
+            {t("alternativesNav")}
+          </Link>
         </nav>
         {children}
       </div>
